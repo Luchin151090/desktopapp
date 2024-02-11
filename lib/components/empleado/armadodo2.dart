@@ -321,6 +321,7 @@ class _Armado2State extends State<Armado2> {
 
                   // ignore: unnecessary_null_comparison
                   if (pedidoEncontrado != null) {
+                  
                     setState(() {
                       //  seleccionadosUbicaciones.add(coordenadas);
                       pedidoSeleccionado.add(pedidoEncontrado);
@@ -361,7 +362,7 @@ class _Armado2State extends State<Armado2> {
                   print("SELECCIONADO: ${coordenadas}");
 
                   // Buscar el pedido correspondiente a las coordenadas
-                  Pedido pedidoEncontrado = hoyexpress.firstWhere(
+                  Pedido pedidoEncontradoExpress = hoyexpress.firstWhere(
                     (pedido) =>
                         _isCoordenadaIgual(
                             pedido.latitud ?? 0.0, coordenadas.latitude) &&
@@ -383,15 +384,15 @@ class _Armado2State extends State<Armado2> {
                             ''), // Valor predeterminado si no se encuentra
                   );
                   print("encontrado");
-                  print(pedidoEncontrado);
+                  print(pedidoEncontradoExpress);
 
                   // Verificar que se encontró un pedido antes de agregarlo
 
                   // ignore: unnecessary_null_comparison
-                  if (pedidoEncontrado != null) {
+                  if (pedidoEncontradoExpress != null) {
                     setState(() {
                       //  seleccionadosUbicaciones.add(coordenadas);
-                      pedidoSeleccionado.add(pedidoEncontrado);
+                      pedidoSeleccionado.add(pedidoEncontradoExpress);
                     });
 
                     //  getUbicacionSeleccionada();
@@ -639,10 +640,10 @@ class _Armado2State extends State<Armado2> {
             hoyexpress.add(nuevoPedido);
 
             // OBTENER COORDENADAS DE LOS EXPRESS
-            LatLng tempcoord =
+            LatLng tempcoordexpress =
                 LatLng(nuevoPedido.latitud ?? 0.0, nuevoPedido.longitud ?? 0.0);
             setState(() {
-              puntosexpress.add(tempcoord);
+              puntosexpress.add(tempcoordexpress);
             });
             marcadoresPut("express");
             setState(() {

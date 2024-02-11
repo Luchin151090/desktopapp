@@ -1,5 +1,6 @@
 import 'package:desktopapp/components/empleado/armado.dart';
 import 'package:desktopapp/components/empleado/armadodo2.dart';
+import 'package:desktopapp/components/empleado/login1.dart';
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,9 @@ import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.
 import 'package:intl/intl.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:desktopapp/components/provider/user_provider.dart';
+
 
 class Producto {
   final int id;
@@ -546,6 +550,9 @@ class _InicioState extends State<Inicio> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
+
+
     // Formato para obtener el nombre del mes
     final monthFormat = DateFormat('MMMM');
 
@@ -561,6 +568,9 @@ class _InicioState extends State<Inicio> {
           child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
+          physics: MediaQuery.of(context).size.height <=1536 ?
+          const NeverScrollableScrollPhysics() : MediaQuery.of(context).size.height >1536
+            ? BouncingScrollPhysics() : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -572,17 +582,18 @@ class _InicioState extends State<Inicio> {
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      color:Colors.grey,
+                      //color:Colors.grey,
                         margin: const EdgeInsets.only(left: 20),
-                        child: const Column(
+                        child:  Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            
                             Text(
-                              "Hola,Floreshita",
+                              "Hola,${userProvider.user?.nombre}",
                               style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.w200),
+                                  fontSize: 20, fontWeight: FontWeight.bold),
                             ),
-                            Row(
+                           const Row(
                               children: [
                                 Text(
                                   "Bienvenid@ a ",
@@ -612,14 +623,19 @@ class _InicioState extends State<Inicio> {
                     ),
                      Container(
                       margin: const EdgeInsets.only(left: 20),
-                      color: Colors.grey,
+                      //color: Colors.grey,
                       width: 150,
                       height: 50,
-                      child: ElevatedButton(onPressed: (){},
+                      child: ElevatedButton(onPressed: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Login1()));
+                      },
                        style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all((Color.fromARGB(255, 0, 41, 75)))
                        ),
-                       child: Text("Cerrar Sesión",
+                       child:const Text("Cerrar Sesión",
                        style: TextStyle(fontSize: 15,color: Colors.white),)),
                     ),
 
@@ -654,8 +670,8 @@ class _InicioState extends State<Inicio> {
                 margin: const EdgeInsets.only(left: 20),
                 child: Row(
                   children: [
-                    Text(
-                      "Sistema de Pedido ${ancho} x ${alto} ",
+                    const Text(
+                      "Sistema de Pedido",
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
@@ -669,29 +685,14 @@ class _InicioState extends State<Inicio> {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const Armado2(),
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.easeInOut;
-                                var tween = Tween(begin: begin, end: end)
-                                    .chain(CurveTween(curve: curve));
-                                var offsetAnimation = animation.drive(tween);
-                                return SlideTransition(
-                                    position: offsetAnimation, child: child);
-                              },
-                            ),
-                          );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Armado2()));
                         },
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                                Color.fromARGB(255, 135, 83, 128))),
-                        child: Text("Sistema de Ruteo >>",
+                            const Color.fromARGB(255, 135, 83, 128))),
+                        child: const Text("Sistema de Ruteo >>",
                             style: TextStyle(color: Colors.white)),
                       ),
                     ),
@@ -1009,890 +1010,893 @@ class _InicioState extends State<Inicio> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          height: 640,
+                          height: MediaQuery.of(context).size.width > 1536
+                                                      ? 640
+                                                      : MediaQuery.of(context).size.width <= 1536 ?
+                                                      475 :0,
+                          //color:Colors.yellow,
                           width: MediaQuery.of(context).size.width <= 1580
                               ? 420
-                              : 500, // //420,
+                              : 700, // //420,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 20),
-                                child: Text(
-                                  "Lista de Productos y Promociones",
-                                  style: const TextStyle(fontSize: 20),
+                              Center(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 20),
+                                  child: Text(
+                                    "Lista de Productos y Promociones",
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
                                 ),
                               ),
                               //listview
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                height: 590,
-                                width: MediaQuery.of(context).size.width <= 1930 ? 500
-                                 : MediaQuery.of(context).size.width <= 1536 ? 600 : 0,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Colors.grey),
-                                child: ListView.builder(
-                                    scrollDirection: Axis.vertical,
-                                    itemCount: listElementos.length, //8
-                                    itemBuilder: ((context, index) {
-                                      dynamic elementoActual =
-                                          listElementos[index];
-                                      if (elementoActual is Producto) {
-                                        // Producto
-                                        Producto producto = elementoActual;
-
-                                        // CONTENEDOR PRINCIPAL
-
-                                        return Container(
-                                          margin:
-                                              const EdgeInsets.only(top: 10),
-                                          padding: const EdgeInsets.all(10),
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: const Color.fromARGB(
-                                                255, 58, 75, 108),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              // IMAGENES DE PRODUCTO
-                                              Container(
-                                                height: 150,
-                                                width: MediaQuery.of(context).size.width <2220 ? 50: 80,
-                                                decoration: BoxDecoration(
-                                                    // color: Colors.grey,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    image: DecorationImage(
-                                                        image: NetworkImage(
-                                                            producto.foto))),
-                                              ),
-
-                                              // DESCRIPCIÓN DE PRODUCTO
-
-                                              Container(
-                                                  margin: const EdgeInsets.only(
-                                                      left: 20),
-                                                  height: 180,
-                                                  width: MediaQuery.of(context).size.width > 1536
-                                                      ? 200
-                                                      : MediaQuery.of(context).size.width <= 1536 ?
-                                                      120 :0,
+                              Center(
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  height: MediaQuery.of(context).size.width > 1536
+                                                        ? 590
+                                                        : MediaQuery.of(context).size.width <= 1536 ?
+                                                        420 :0,
+                                  width: MediaQuery.of(context).size.width <= 1930 ? 500
+                                   : MediaQuery.of(context).size.width <= 1536 ? 600 : 0,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Color.fromARGB(255, 179, 59, 99)),
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: listElementos.length, //8
+                                      itemBuilder: ((context, index) {
+                                        dynamic elementoActual =
+                                            listElementos[index];
+                                        if (elementoActual is Producto) {
+                                          // Producto
+                                          Producto producto = elementoActual;
+                                
+                                          // CONTENEDOR PRINCIPAL
+                                
+                                          return Container(
+                                            margin:
+                                                const EdgeInsets.only(top: 10),
+                                            padding: const EdgeInsets.all(10),
+                                            height: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              color: const Color.fromARGB(
+                                                  255, 58, 75, 108),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                // IMAGENES DE PRODUCTO
+                                                Container(
+                                                  height: 150,
+                                                  width: MediaQuery.of(context).size.width <2220 ? 50: 80,
                                                   decoration: BoxDecoration(
-                                                    // color: Colors.grey,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                  ),
-                                                  child: Column(
-                                                    children: [
-                                                      Text(
-                                                        "Presentación:${producto.nombre}",
-                                                        style: const TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      Text(
-                                                        "${producto.descripcion}",
-                                                        style: const TextStyle(
-                                                            fontSize: 20,
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      Text(
-                                                        "Precio: S/.${producto.precio}",
-                                                        style: const TextStyle(
-                                                            fontSize: 24,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    100,
-                                                                    237,
-                                                                    105)),
-                                                      ),
-                                                    ],
-                                                  )),
-
-                                              // ENTRADAS NUMÉRICAS
-
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.all(15),
-                                                margin: const EdgeInsets.only(
-                                                    left: 20),
-                                                height: 180,
-                                                width: MediaQuery.of(context)
-                                                            .size
-                                                            .width <=
-                                                        2220
-                                                    ? 150
-                                                    : 250,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey,
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
+                                                      // color: Colors.grey,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      image: DecorationImage(
+                                                          image: NetworkImage(
+                                                              producto.foto))),
                                                 ),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    // CANTIDAD
-                                                    TextFormField(
-                                                      controller:
-                                                          producto.cantidad,
-                                                      keyboardType:
-                                                          const TextInputType
-                                                              .numberWithOptions(
-                                                              decimal: true),
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter
-                                                            .allow(
-                                                                RegExp(r'^\d+'))
-                                                      ],
-                                                      decoration:
-                                                          InputDecoration(
-                                                        filled: true,
-                                                        fillColor: const Color
-                                                            .fromARGB(
-                                                            255,
-                                                            223,
-                                                            225,
-                                                            226), // Cambia este color según tus preferencias
-
-                                                        hintText: 'Cantidad',
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
+                                
+                                                // DESCRIPCIÓN DE PRODUCTO
+                                
+                                                Container(
+                                                    margin: const EdgeInsets.only(
+                                                        left: 20),
+                                                    height: 180,
+                                                    width: MediaQuery.of(context).size.width > 1536
+                                                        ? 200
+                                                        : MediaQuery.of(context).size.width <= 1536 ?
+                                                        120 :0,
+                                                    decoration: BoxDecoration(
+                                                      // color: Colors.grey,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    child: Column(
+                                                      children: [
+                                                        Text(
+                                                          "Presentación:${producto.nombre}",
+                                                          style: const TextStyle(
+                                                              color:
+                                                                  Colors.white),
                                                         ),
-                                                        hintStyle:
-                                                            const TextStyle(
-                                                                fontSize: 12),
-                                                      ),
-                                                      onChanged: (value) {
-                                                        print(
-                                                            "valor detectado: $value");
-                                                        print(
-                                                            'tipo ${value.runtimeType}');
-                                                        // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
-                                                        listElementos[index]
-                                                            .cantidad
-                                                            .text = value;
-
-                                                        if (value.isNotEmpty) {
-                                                          print(
-                                                              'tipo ${int.parse(value).runtimeType}');
-                                                          setState(() {
-                                                            listElementos[index]
-                                                                    .cantidadInt =
-                                                                int.parse(
-                                                                    value);
-                                                            listElementos[index]
-                                                                .monto = int
-                                                                    .parse(
-                                                                        value) *
-                                                                listElementos[
-                                                                        index]
-                                                                    .precio;
-                                                            print(
-                                                                'este es el monto: ${listElementos[index].monto}');
-                                                          });
-                                                        }
-                                                      },
-                                                      style: const TextStyle(
-                                                          fontSize: 12),
-                                                    ),
-
-                                                    // PRECIO
-
-                                                    TextFormField(
-                                                      controller:
-                                                          producto.descuento,
-                                                      keyboardType:
-                                                          const TextInputType
-                                                              .numberWithOptions(
-                                                              decimal: true),
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter
-                                                            .allow(RegExp(
-                                                                r'^\d+\.?\d{0,2}')),
-                                                      ],
-                                                      decoration:
-                                                          InputDecoration(
-                                                        filled: true,
-                                                        fillColor: const Color
-                                                            .fromARGB(
-                                                            255,
-                                                            223,
-                                                            225,
-                                                            226), // Cambia este color según tus preferencias
-
-                                                        hintText:
-                                                            'S/. Descuento',
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
+                                                        Text(
+                                                          "${producto.descripcion}",
+                                                          style: const TextStyle(
+                                                              fontSize: 20,
+                                                              color:
+                                                                  Colors.white),
                                                         ),
-                                                        hintStyle:
-                                                            const TextStyle(
-                                                                fontSize: 12),
-                                                      ),
-                                                      onChanged: (value) {
-                                                        print(
-                                                            "0.1) descuento detectado: $value");
-                                                        // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
-                                                        listElementos[index]
-                                                            .descuento
-                                                            .text = value;
-                                                        if (value.isNotEmpty) {
-                                                          setState(() {
-                                                            listElementos[index]
-                                                                    .descuentoDouble =
-                                                                int.parse(value)
-                                                                    .toDouble();
-                                                            listElementos[index]
-                                                                .monto = listElementos[
-                                                                        index]
-                                                                    .precio *
-                                                                listElementos[
-                                                                        index]
-                                                                    .cantidadInt;
-                                                            print(
-                                                                '0.2) este es el descuento: ${listElementos[index].descuentoDouble}');
-                                                          });
-                                                        } else {
-                                                          print(
-                                                              '0.3) no hay descuento');
-                                                          setState(() {
-                                                            listElementos[index]
-                                                                    .descuentoDouble =
-                                                                0.00;
-                                                            listElementos[index]
-                                                                .monto = listElementos[
-                                                                        index]
-                                                                    .precio *
-                                                                listElementos[
-                                                                        index]
-                                                                    .cantidadInt;
-                                                            print(
-                                                                '0.4) este es el monto sin descuento: ${listElementos[index].monto}');
-                                                          });
-                                                        }
-
-                                                        listElementos[index]
-                                                            .monto = listElementos[
-                                                                    index]
-                                                                .monto -
-                                                            listElementos[index]
-                                                                .descuentoDouble;
-                                                        print(
-                                                            '0.5) este es el monto con descuento: ${listElementos[index].monto}');
-                                                      },
-                                                      validator: (value) {
-                                                        if (value is String) {
-                                                          if (listElementos[
-                                                                  index]
-                                                              .cantidad
-                                                              .isNotEmpty) {
-                                                            if (int.parse(value)
-                                                                    .toDouble() >=
-                                                                (listElementos[
-                                                                            index]
-                                                                        .precio *
-                                                                    listElementos[
-                                                                            index]
-                                                                        .cantidadInt)) {
-                                                              return 'El descuento debe ser menor al monto: ${listElementos[index].precio * listElementos[index].cantidadInt}';
-                                                            } else {
-                                                              return null;
-                                                            }
-                                                          } else {
-                                                            return 'Primero debes poner la cantidad';
-                                                          }
-                                                        }
-                                                        return null;
-                                                      },
-                                                      style: const TextStyle(
-                                                          fontSize: 12),
-                                                    ),
-
-                                                    const SizedBox(
-                                                      height: 10,
-                                                    ),
-                                                    ElevatedButton(
-                                                        onPressed: producto
-                                                                    .descuento
-                                                                    .text
-                                                                    .isNotEmpty &&
-                                                                producto
-                                                                    .cantidad
-                                                                    .text
-                                                                    .isNotEmpty
-                                                            ? () {
-                                                                showModalBottomSheet(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (BuildContext
-                                                                          context) {
-                                                                    return StatefulBuilder(builder: (BuildContext
-                                                                            context,
-                                                                        StateSetter
-                                                                            setState) {
-                                                                      return Container(
-                                                                        height:
-                                                                            280,
-                                                                        width: MediaQuery.of(context)
-                                                                            .size
-                                                                            .width,
-                                                                        padding: const EdgeInsets
-                                                                            .all(
-                                                                            16.0),
-                                                                        child:
-                                                                            Column(
-                                                                          crossAxisAlignment:
-                                                                              CrossAxisAlignment.start,
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          children: [
-                                                                            const Text(
-                                                                              'Autorizado por:',
-                                                                              style: TextStyle(
-                                                                                color: Color.fromARGB(255, 3, 64, 113),
-                                                                                fontSize: 20,
-                                                                                fontWeight: FontWeight.bold,
-                                                                              ),
-                                                                            ),
-                                                                            const SizedBox(height: 10),
-                                                                            TextFormField(
-                                                                              controller: producto.nombreAutorizador,
-                                                                              style: const TextStyle(
-                                                                                fontSize: 15,
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: Color.fromARGB(255, 1, 41, 75),
-                                                                              ),
-                                                                              decoration: const InputDecoration(
-                                                                                filled: true,
-                                                                                fillColor: Colors.white,
-                                                                                labelText: "Nombre:",
-                                                                                labelStyle: TextStyle(
-                                                                                  color: Color.fromARGB(255, 0, 48, 87),
-                                                                                  fontSize: 13,
-                                                                                ),
-                                                                              ),
-                                                                              onChanged: (value) {
-                                                                                print('nombre detectado: $value');
-                                                                                print('tipo ${value.runtimeType}');
-                                                                                setState(() {
-                                                                                  listElementos[index].nombreAutorizador.text = value;
-                                                                                });
-                                                                              },
-                                                                            ),
-                                                                            TextFormField(
-                                                                              controller: producto.cargoAutorizador,
-                                                                              style: const TextStyle(
-                                                                                fontSize: 15,
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: Color.fromARGB(255, 1, 41, 75),
-                                                                              ),
-                                                                              decoration: const InputDecoration(
-                                                                                filled: true,
-                                                                                fillColor: Colors.white,
-                                                                                labelText: "Cargo:",
-                                                                                labelStyle: TextStyle(
-                                                                                  color: Color.fromARGB(255, 0, 48, 87),
-                                                                                  fontSize: 13,
-                                                                                ),
-                                                                              ),
-                                                                              onChanged: (value) {
-                                                                                print('cargo detectado: $value');
-                                                                                print('tipo ${value.runtimeType}');
-                                                                                setState(() {
-                                                                                  listElementos[index].cargoAutorizador.text = value;
-                                                                                });
-                                                                              },
-                                                                            ),
-                                                                            const SizedBox(height: 10),
-                                                                            ElevatedButton(
-                                                                              onPressed: producto.cargoAutorizador.text.isNotEmpty && producto.nombreAutorizador.text.isNotEmpty
-                                                                                  ? () {
-                                                                                      print("datos de observacion añadidos");
-                                                                                      setState(() {
-                                                                                        producto.observacion = "Descuento de S/.${producto.descuentoDouble} en ${producto.nombre} aprobado por ${producto.nombreAutorizador.text} - ${producto.cargoAutorizador.text}";
-                                                                                        print(producto.observacion);
-                                                                                      });
-                                                                                      Navigator.pop(context);
-                                                                                    }
-                                                                                  : null,
-                                                                              style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 35, 74, 106))),
-                                                                              child: const Row(
-                                                                                children: [
-                                                                                  Icon(
-                                                                                    Icons.account_box_outlined,
-                                                                                    color: Colors.blue,
-                                                                                    size: 25,
-                                                                                  ),
-                                                                                  Text(
-                                                                                    ' Confirmar',
-                                                                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, color: Color.fromARGB(255, 77, 231, 82)),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      );
-                                                                    });
-                                                                  },
-                                                                );
-                                                              }
-                                                            : null,
-                                                        child:
-                                                            Text("Confirmar?"))
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      } else if (elementoActual is Promo) {
-                                        // Promos
-                                        Promo promo = elementoActual;
-
-                                        // CONTENEDOR PRINCIPAL
-                                        return Container(
-                                          margin:
-                                              const EdgeInsets.only(top: 10),
-                                          padding: const EdgeInsets.all(10),
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            color: const Color.fromARGB(
-                                                255, 58, 75, 108),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              // IMAGENES DE PRODUCTO
-                                              Container(
-                                                height: 150,
-                                                width: MediaQuery.of(context)
-                                                            .size
-                                                            .width <=
-                                                        1580
-                                                    ? 90
-                                                    : 150,
-                                                decoration: BoxDecoration(
-                                                    // color: Colors.grey,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    image: DecorationImage(
-                                                        image: NetworkImage(
-                                                            promo.foto))),
-                                              ),
-
-                                              // DESCRIPCIÓN DE PRODUCTO
-
-                                              Container(
+                                                        Text(
+                                                          "Precio: S/.${producto.precio}",
+                                                          style: const TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight:
+                                                                  FontWeight.w600,
+                                                              color:
+                                                                  Color.fromARGB(
+                                                                      255,
+                                                                      100,
+                                                                      237,
+                                                                      105)),
+                                                        ),
+                                                      ],
+                                                    )),
+                                
+                                                // ENTRADAS NUMÉRICAS
+                                
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(15),
                                                   margin: const EdgeInsets.only(
                                                       left: 20),
                                                   height: 180,
                                                   width: MediaQuery.of(context)
                                                               .size
                                                               .width <=
-                                                          1580
-                                                      ? 90
-                                                      : 150,
+                                                          2220
+                                                      ? 150
+                                                      : 250,
                                                   decoration: BoxDecoration(
-                                                    // color: Colors.grey,
+                                                    color: Colors.grey,
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
+                                                        BorderRadius.circular(20),
                                                   ),
                                                   child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.center,
                                                     children: [
-                                                      Text(
-                                                        "Presentación:${promo.nombre}",
-                                                        style: const TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      Text(
-                                                        "${promo.descripcion}",
-                                                        style: const TextStyle(
-                                                            fontSize: 10,
-                                                            color:
-                                                                Colors.white),
-                                                      ),
-                                                      Text(
-                                                        "Precio: S/.${promo.precio}",
-                                                        style: const TextStyle(
-                                                            fontSize: 24,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    205,
-                                                                    237,
-                                                                    100)),
-                                                      ),
-                                                    ],
-                                                  )),
-
-                                              // ENTRADAS NUMÉRICAS
-
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.all(15),
-                                                margin: const EdgeInsets.only(
-                                                    left: 20),
-                                                height: 180,
-                                                width: MediaQuery.of(context)
-                                                            .size
-                                                            .width <=
-                                                        1580
-                                                    ? 150
-                                                    : 250,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey,
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                ),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    // CANTIDAD
-                                                    TextFormField(
-                                                      controller:
-                                                          promo.cantidad,
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter
-                                                            .allow(RegExp(
-                                                                r'^\d+')),
-                                                      ],
-                                                      decoration:
-                                                          InputDecoration(
-                                                        filled: true,
-                                                        fillColor: const Color
-                                                            .fromARGB(
-                                                            255,
-                                                            223,
-                                                            225,
-                                                            226), // Cambia este color según tus preferencias
-
-                                                        hintText: 'Cantidad',
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
+                                                      // CANTIDAD
+                                                      TextFormField(
+                                                        controller:
+                                                            producto.cantidad,
+                                                        keyboardType:
+                                                            const TextInputType
+                                                                .numberWithOptions(
+                                                                decimal: true),
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .allow(
+                                                                  RegExp(r'^\d+'))
+                                                        ],
+                                                        decoration:
+                                                            InputDecoration(
+                                                          filled: true,
+                                                          fillColor: const Color
+                                                              .fromARGB(
+                                                              255,
+                                                              223,
+                                                              225,
+                                                              226), // Cambia este color según tus preferencias
+                                
+                                                          hintText: 'Cantidad',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(10),
+                                                          ),
+                                                          hintStyle:
+                                                              const TextStyle(
+                                                                  fontSize: 12),
                                                         ),
-                                                        hintStyle:
-                                                            const TextStyle(
-                                                                fontSize: 12),
-                                                      ),
-                                                      onChanged: (value) {
-                                                        print(
-                                                            "valor detectado: $value");
-                                                        print(
-                                                            'tipo ${value.runtimeType}');
-                                                        // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
-                                                        listElementos[index]
-                                                            .cantidad
-                                                            .text = value;
-
-                                                        if (value.isNotEmpty) {
+                                                        onChanged: (value) {
                                                           print(
-                                                              'tipo ${int.parse(value).runtimeType}');
-                                                          setState(() {
-                                                            listElementos[index]
-                                                                    .cantidadInt =
-                                                                int.parse(
-                                                                    value);
-                                                            listElementos[index]
-                                                                .monto = int
-                                                                    .parse(
-                                                                        value) *
-                                                                listElementos[
-                                                                        index]
-                                                                    .precio;
-                                                            print(
-                                                                'este es el monto: ${listElementos[index].monto}');
-                                                          });
-                                                        }
-                                                      },
-                                                      style: const TextStyle(
-                                                          fontSize: 12),
-                                                    ),
-
-                                                    // PRECIO
-
-                                                    TextFormField(
-                                                      controller:
-                                                          promo.descuento,
-                                                      keyboardType:
-                                                          const TextInputType
-                                                              .numberWithOptions(
-                                                              decimal: true),
-                                                      inputFormatters: [
-                                                        FilteringTextInputFormatter
-                                                            .allow(RegExp(
-                                                                r'^\d+\.?\d{0,2}')),
-                                                      ],
-                                                      decoration:
-                                                          InputDecoration(
-                                                        filled: true,
-                                                        fillColor: const Color
-                                                            .fromARGB(
-                                                            255,
-                                                            223,
-                                                            225,
-                                                            226), // Cambia este color según tus preferencias
-
-                                                        hintText:
-                                                            'S/. Descuento',
-                                                        border:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                        hintStyle:
-                                                            const TextStyle(
-                                                                fontSize: 12),
-                                                      ),
-                                                      onChanged: (value) {
-                                                        print(
-                                                            "0.1) descuento detectado: $value");
-                                                        // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
-                                                        listElementos[index]
-                                                            .descuento
-                                                            .text = value;
-                                                        if (value.isNotEmpty) {
-                                                          setState(() {
-                                                            listElementos[index]
-                                                                    .descuentoDouble =
-                                                                int.parse(value)
-                                                                    .toDouble();
-                                                            listElementos[index]
-                                                                .monto = listElementos[
-                                                                        index]
-                                                                    .precio *
-                                                                listElementos[
-                                                                        index]
-                                                                    .cantidadInt;
-                                                            print(
-                                                                '0.2) este es el descuento: ${listElementos[index].descuentoDouble}');
-                                                          });
-                                                        } else {
+                                                              "valor detectado: $value");
                                                           print(
-                                                              '0.3) no hay descuento');
-                                                          setState(() {
-                                                            listElementos[index]
-                                                                    .descuentoDouble =
-                                                                0.00;
-                                                            listElementos[index]
-                                                                .monto = listElementos[
-                                                                        index]
-                                                                    .precio *
-                                                                listElementos[
-                                                                        index]
-                                                                    .cantidadInt;
-                                                            print(
-                                                                '0.4) este es el monto sin descuento: ${listElementos[index].monto}');
-                                                          });
-                                                        }
-
-                                                        listElementos[index]
-                                                            .monto = listElementos[
-                                                                    index]
-                                                                .monto -
-                                                            listElementos[index]
-                                                                .descuentoDouble;
-                                                        print(
-                                                            '0.5) este es el monto con descuento: ${listElementos[index].monto}');
-                                                      },
-                                                      validator: (value) {
-                                                        if (value is String) {
-                                                          if (listElementos[
-                                                                  index]
+                                                              'tipo ${value.runtimeType}');
+                                                          // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
+                                                          listElementos[index]
                                                               .cantidad
-                                                              .isNotEmpty) {
-                                                            if (int.parse(value)
-                                                                    .toDouble() >=
-                                                                (listElementos[
-                                                                            index]
-                                                                        .precio *
-                                                                    listElementos[
-                                                                            index]
-                                                                        .cantidadInt)) {
-                                                              return 'El descuento debe ser menor al monto: ${listElementos[index].precio * listElementos[index].cantidadInt}';
-                                                            } else {
-                                                              return null;
-                                                            }
-                                                          } else {
-                                                            return 'Primero debes poner la cantidad';
+                                                              .text = value;
+                                
+                                                          if (value.isNotEmpty) {
+                                                            print(
+                                                                'tipo ${int.parse(value).runtimeType}');
+                                                            setState(() {
+                                                              listElementos[index]
+                                                                      .cantidadInt =
+                                                                  int.parse(
+                                                                      value);
+                                                              listElementos[index]
+                                                                  .monto = int
+                                                                      .parse(
+                                                                          value) *
+                                                                  listElementos[
+                                                                          index]
+                                                                      .precio;
+                                                              print(
+                                                                  'este es el monto: ${listElementos[index].monto}');
+                                                            });
                                                           }
-                                                        }
-                                                        return null;
-                                                      },
-                                                      style: const TextStyle(
-                                                          fontSize: 12),
-                                                    ),
-
-                                                    const SizedBox(
-                                                      height: 10,
-                                                    ),
-                                                    ElevatedButton(
-                                                        onPressed:
-                                                            promo.descuentoDouble >
-                                                                        0 &&
-                                                                    promo.cantidadInt >
-                                                                        0
-                                                                ? () {
-                                                                    showModalBottomSheet(
-                                                                      context:
-                                                                          context,
-                                                                      builder:
-                                                                          (BuildContext
-                                                                              context) {
-                                                                        return StatefulBuilder(builder: (BuildContext
-                                                                                context,
-                                                                            StateSetter
-                                                                                setState) {
-                                                                          return Container(
-                                                                            height:
-                                                                                280,
-                                                                            width:
-                                                                                MediaQuery.of(context).size.width,
-                                                                            padding:
-                                                                                const EdgeInsets.all(16.0),
-                                                                            child:
-                                                                                Column(
-                                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                const Text(
-                                                                                  'Autorizado por:',
-                                                                                  style: TextStyle(
-                                                                                    color: Color.fromARGB(255, 3, 64, 113),
-                                                                                    fontSize: 20,
-                                                                                    fontWeight: FontWeight.bold,
+                                                        },
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                
+                                                      // PRECIO
+                                
+                                                      TextFormField(
+                                                        controller:
+                                                            producto.descuento,
+                                                        keyboardType:
+                                                            const TextInputType
+                                                                .numberWithOptions(
+                                                                decimal: true),
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .allow(RegExp(
+                                                                  r'^\d+\.?\d{0,2}')),
+                                                        ],
+                                                        decoration:
+                                                            InputDecoration(
+                                                          filled: true,
+                                                          fillColor: const Color
+                                                              .fromARGB(
+                                                              255,
+                                                              223,
+                                                              225,
+                                                              226), // Cambia este color según tus preferencias
+                                
+                                                          hintText:
+                                                              'S/. Descuento',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(10),
+                                                          ),
+                                                          hintStyle:
+                                                              const TextStyle(
+                                                                  fontSize: 12),
+                                                        ),
+                                                        onChanged: (value) {
+                                                          print(
+                                                              "0.1) descuento detectado: $value");
+                                                          // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
+                                                          listElementos[index]
+                                                              .descuento
+                                                              .text = value;
+                                                          if (value.isNotEmpty) {
+                                                            setState(() {
+                                                              listElementos[index]
+                                                                      .descuentoDouble =
+                                                                  int.parse(value)
+                                                                      .toDouble();
+                                                              listElementos[index]
+                                                                  .monto = listElementos[
+                                                                          index]
+                                                                      .precio *
+                                                                  listElementos[
+                                                                          index]
+                                                                      .cantidadInt;
+                                                              print(
+                                                                  '0.2) este es el descuento: ${listElementos[index].descuentoDouble}');
+                                                            });
+                                                          } else {
+                                                            print(
+                                                                '0.3) no hay descuento');
+                                                            setState(() {
+                                                              listElementos[index]
+                                                                      .descuentoDouble =
+                                                                  0.00;
+                                                              listElementos[index]
+                                                                  .monto = listElementos[
+                                                                          index]
+                                                                      .precio *
+                                                                  listElementos[
+                                                                          index]
+                                                                      .cantidadInt;
+                                                              print(
+                                                                  '0.4) este es el monto sin descuento: ${listElementos[index].monto}');
+                                                            });
+                                                          }
+                                
+                                                          listElementos[index]
+                                                              .monto = listElementos[
+                                                                      index]
+                                                                  .monto -
+                                                              listElementos[index]
+                                                                  .descuentoDouble;
+                                                          print(
+                                                              '0.5) este es el monto con descuento: ${listElementos[index].monto}');
+                                                        },
+                                                        validator: (value) {
+                                                          if (value is String) {
+                                                            if (listElementos[
+                                                                    index]
+                                                                .cantidad
+                                                                .isNotEmpty) {
+                                                              if (int.parse(value)
+                                                                      .toDouble() >=
+                                                                  (listElementos[
+                                                                              index]
+                                                                          .precio *
+                                                                      listElementos[
+                                                                              index]
+                                                                          .cantidadInt)) {
+                                                                return 'El descuento debe ser menor al monto: ${listElementos[index].precio * listElementos[index].cantidadInt}';
+                                                              } else {
+                                                                return null;
+                                                              }
+                                                            } else {
+                                                              return 'Primero debes poner la cantidad';
+                                                            }
+                                                          }
+                                                          return null;
+                                                        },
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      ElevatedButton(
+                                                          onPressed: producto
+                                                                      .descuento
+                                                                      .text
+                                                                      .isNotEmpty &&
+                                                                  producto
+                                                                      .cantidad
+                                                                      .text
+                                                                      .isNotEmpty
+                                                              ? () {
+                                                                  showModalBottomSheet(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (BuildContext
+                                                                            context) {
+                                                                      return StatefulBuilder(builder: (BuildContext
+                                                                              context,
+                                                                          StateSetter
+                                                                              setState) {
+                                                                        return Container(
+                                                                          height:
+                                                                              280,
+                                                                          width: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width,
+                                                                          padding: const EdgeInsets
+                                                                              .all(
+                                                                              16.0),
+                                                                          child:
+                                                                              Column(
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.min,
+                                                                            children: [
+                                                                              const Text(
+                                                                                'Autorizado por:',
+                                                                                style: TextStyle(
+                                                                                  color: Color.fromARGB(255, 3, 64, 113),
+                                                                                  fontSize: 20,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                ),
+                                                                              ),
+                                                                              const SizedBox(height: 10),
+                                                                              TextFormField(
+                                                                                controller: producto.nombreAutorizador,
+                                                                                style: const TextStyle(
+                                                                                  fontSize: 15,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  color: Color.fromARGB(255, 1, 41, 75),
+                                                                                ),
+                                                                                decoration: const InputDecoration(
+                                                                                  filled: true,
+                                                                                  fillColor: Colors.white,
+                                                                                  labelText: "Nombre:",
+                                                                                  labelStyle: TextStyle(
+                                                                                    color: Color.fromARGB(255, 0, 48, 87),
+                                                                                    fontSize: 13,
                                                                                   ),
                                                                                 ),
-                                                                                const SizedBox(height: 10),
-                                                                                TextFormField(
-                                                                                  controller: promo.nombreAutorizador,
-                                                                                  style: const TextStyle(
-                                                                                    fontSize: 15,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    color: Color.fromARGB(255, 1, 41, 75),
+                                                                                onChanged: (value) {
+                                                                                  print('nombre detectado: $value');
+                                                                                  print('tipo ${value.runtimeType}');
+                                                                                  setState(() {
+                                                                                    listElementos[index].nombreAutorizador.text = value;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                              TextFormField(
+                                                                                controller: producto.cargoAutorizador,
+                                                                                style: const TextStyle(
+                                                                                  fontSize: 15,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  color: Color.fromARGB(255, 1, 41, 75),
+                                                                                ),
+                                                                                decoration: const InputDecoration(
+                                                                                  filled: true,
+                                                                                  fillColor: Colors.white,
+                                                                                  labelText: "Cargo:",
+                                                                                  labelStyle: TextStyle(
+                                                                                    color: Color.fromARGB(255, 0, 48, 87),
+                                                                                    fontSize: 13,
                                                                                   ),
-                                                                                  decoration: const InputDecoration(
-                                                                                    filled: true,
-                                                                                    fillColor: Colors.white,
-                                                                                    labelText: "Nombre:",
-                                                                                    labelStyle: TextStyle(
-                                                                                      color: Color.fromARGB(255, 0, 48, 87),
-                                                                                      fontSize: 13,
+                                                                                ),
+                                                                                onChanged: (value) {
+                                                                                  print('cargo detectado: $value');
+                                                                                  print('tipo ${value.runtimeType}');
+                                                                                  setState(() {
+                                                                                    listElementos[index].cargoAutorizador.text = value;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                              const SizedBox(height: 10),
+                                                                              ElevatedButton(
+                                                                                onPressed: producto.cargoAutorizador.text.isNotEmpty && producto.nombreAutorizador.text.isNotEmpty
+                                                                                    ? () {
+                                                                                        print("datos de observacion añadidos");
+                                                                                        setState(() {
+                                                                                          producto.observacion = "Descuento de S/.${producto.descuentoDouble} en ${producto.nombre} aprobado por ${producto.nombreAutorizador.text} - ${producto.cargoAutorizador.text}";
+                                                                                          print(producto.observacion);
+                                                                                        });
+                                                                                        Navigator.pop(context);
+                                                                                      }
+                                                                                    : null,
+                                                                                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 35, 74, 106))),
+                                                                                child: const Row(
+                                                                                  children: [
+                                                                                    Icon(
+                                                                                      Icons.account_box_outlined,
+                                                                                      color: Colors.blue,
+                                                                                      size: 25,
                                                                                     ),
-                                                                                  ),
-                                                                                  onChanged: (value) {
-                                                                                    setState(() {
-                                                                                      listElementos[index].nombreAutorizador.text = value;
-                                                                                    });
-                                                                                  },
-                                                                                ),
-                                                                                TextFormField(
-                                                                                  controller: promo.cargoAutorizador,
-                                                                                  style: const TextStyle(
-                                                                                    fontSize: 15,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    color: Color.fromARGB(255, 1, 41, 75),
-                                                                                  ),
-                                                                                  decoration: const InputDecoration(
-                                                                                    filled: true,
-                                                                                    fillColor: Colors.white,
-                                                                                    labelText: "Cargo:",
-                                                                                    labelStyle: TextStyle(
-                                                                                      color: Color.fromARGB(255, 0, 48, 87),
-                                                                                      fontSize: 13,
+                                                                                    Text(
+                                                                                      ' Confirmar',
+                                                                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, color: Color.fromARGB(255, 77, 231, 82)),
                                                                                     ),
-                                                                                  ),
-                                                                                  onChanged: (value) {
-                                                                                    setState(() {
-                                                                                      listElementos[index].cargoAutorizador.text = value;
-                                                                                    });
-                                                                                  },
+                                                                                  ],
                                                                                 ),
-                                                                                const SizedBox(height: 10),
-                                                                                ElevatedButton(
-                                                                                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 1, 62, 111))),
-                                                                                  onPressed: promo.cargoAutorizador.text.isNotEmpty && promo.nombreAutorizador.text.isNotEmpty
-                                                                                      ? () {
-                                                                                          print("datos de observacion añadidos");
-                                                                                          setState(() {
-                                                                                            promo.observacion = "Descuento aprobado por ${promo.nombreAutorizador.text} - ${promo.cargoAutorizador.text}";
-                                                                                            print(promo.observacion);
-                                                                                          });
-                                                                                          Navigator.pop(context);
-                                                                                        }
-                                                                                      : null,
-                                                                                  child: const Row(
-                                                                                    children: [
-                                                                                      Icon(
-                                                                                        Icons.account_box_outlined,
-                                                                                        color: Colors.blue,
-                                                                                        size: 25,
-                                                                                      ),
-                                                                                      Text(
-                                                                                        ' Confirmar',
-                                                                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, color: Color.fromARGB(255, 77, 231, 82)),
-                                                                                      ),
-                                                                                    ],
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        });
-                                                                      },
-                                                                    );
-                                                                  }
-                                                                : null,
-                                                        child:
-                                                            Text("Confirmar?"))
-                                                  ],
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        );
+                                                                      });
+                                                                    },
+                                                                  );
+                                                                }
+                                                              : null,
+                                                          child:
+                                                              Text("Confirmar?"))
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      } else {
-                                        return Container(
-                                          child: Text("NO PRODUCTS"),
-                                        );
-                                      }
-
-                                      // Producto producto = listProducts[index];
-                                    })),
+                                              ],
+                                            ),
+                                          );
+                                        } else if (elementoActual is Promo) {
+                                          // Promos
+                                          Promo promo = elementoActual;
+                                
+                                          // CONTENEDOR PRINCIPAL
+                                          return Container(
+                                            margin:
+                                                const EdgeInsets.only(top: 10),
+                                            padding: const EdgeInsets.all(10),
+                                            height: 200,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              color: const Color.fromARGB(
+                                                  255, 58, 75, 108),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                // IMAGENES DE PRODUCTO
+                                                Container(
+                                                  height: 150,
+                                                   width: MediaQuery.of(context).size.width > 1536
+                                                        ? 90
+                                                        : MediaQuery.of(context).size.width <= 1536 ?
+                                                        80 :0,
+                                                  decoration: BoxDecoration(
+                                                      // color: Colors.grey,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      image: DecorationImage(
+                                                          image: NetworkImage(
+                                                              promo.foto))),
+                                                ),
+                                
+                                                // DESCRIPCIÓN DE PRODUCTO
+                                
+                                                Container(
+                                                    margin: const EdgeInsets.only(
+                                                        left: 20),
+                                                    height: 180,
+                                                    width: MediaQuery.of(context).size.width > 1536
+                                                        ? 160
+                                                        : MediaQuery.of(context).size.width <= 1536 ?
+                                                        80 :0,
+                                                    decoration: BoxDecoration(
+                                                      // color: Colors.grey,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                    ),
+                                                    child: Column(
+                                                      children: [
+                                                        Text(
+                                                          "Presentación:${promo.nombre}",
+                                                          style: const TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                        Text(
+                                                          "${promo.descripcion}",
+                                                          style: const TextStyle(
+                                                              fontSize: 10,
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                        Text(
+                                                          "Precio: S/.${promo.precio}",
+                                                          style: const TextStyle(
+                                                              fontSize: 24,
+                                                              fontWeight:
+                                                                  FontWeight.w600,
+                                                              color:
+                                                                  Color.fromARGB(
+                                                                      255,
+                                                                      205,
+                                                                      237,
+                                                                      100)),
+                                                        ),
+                                                      ],
+                                                    )),
+                                
+                                                // ENTRADAS NUMÉRICAS
+                                
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(15),
+                                                  margin: const EdgeInsets.only(
+                                                      left: 20),
+                                                  height: 180,
+                                                  width: MediaQuery.of(context).size  .width < 1536 ? 150
+                                                      : MediaQuery.of(context).size.width >=1536 ? 160 :0,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey,
+                                                    borderRadius:
+                                                        BorderRadius.circular(20),
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.center,
+                                                    children: [
+                                                      // CANTIDAD
+                                                      TextFormField(
+                                                        controller:
+                                                            promo.cantidad,
+                                                        keyboardType:
+                                                            TextInputType.number,
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .allow(RegExp(
+                                                                  r'^\d+')),
+                                                        ],
+                                                        decoration:
+                                                            InputDecoration(
+                                                          filled: true,
+                                                          fillColor: const Color
+                                                              .fromARGB(
+                                                              255,
+                                                              223,
+                                                              225,
+                                                              226), // Cambia este color según tus preferencias
+                                
+                                                          hintText: 'Cantidad',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(10),
+                                                          ),
+                                                          hintStyle:
+                                                              const TextStyle(
+                                                                  fontSize: 12),
+                                                        ),
+                                                        onChanged: (value) {
+                                                          print(
+                                                              "valor detectado: $value");
+                                                          print(
+                                                              'tipo ${value.runtimeType}');
+                                                          // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
+                                                          listElementos[index]
+                                                              .cantidad
+                                                              .text = value;
+                                
+                                                          if (value.isNotEmpty) {
+                                                            print(
+                                                                'tipo ${int.parse(value).runtimeType}');
+                                                            setState(() {
+                                                              listElementos[index]
+                                                                      .cantidadInt =
+                                                                  int.parse(
+                                                                      value);
+                                                              listElementos[index]
+                                                                  .monto = int
+                                                                      .parse(
+                                                                          value) *
+                                                                  listElementos[
+                                                                          index]
+                                                                      .precio;
+                                                              print(
+                                                                  'este es el monto: ${listElementos[index].monto}');
+                                                            });
+                                                          }
+                                                        },
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                
+                                                      // PRECIO
+                                
+                                                      TextFormField(
+                                                        controller:
+                                                            promo.descuento,
+                                                        keyboardType:
+                                                            const TextInputType
+                                                                .numberWithOptions(
+                                                                decimal: true),
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .allow(RegExp(
+                                                                  r'^\d+\.?\d{0,2}')),
+                                                        ],
+                                                        decoration:
+                                                            InputDecoration(
+                                                          filled: true,
+                                                          fillColor: const Color
+                                                              .fromARGB(
+                                                              255,
+                                                              223,
+                                                              225,
+                                                              226), // Cambia este color según tus preferencias
+                                
+                                                          hintText:
+                                                              'S/. Descuento',
+                                                          border:
+                                                              OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(10),
+                                                          ),
+                                                          hintStyle:
+                                                              const TextStyle(
+                                                                  fontSize: 12),
+                                                        ),
+                                                        onChanged: (value) {
+                                                          print(
+                                                              "0.1) descuento detectado: $value");
+                                                          // SETEAR DE LA LISTA MIXTA(PROD Y PROMO)
+                                                          listElementos[index]
+                                                              .descuento
+                                                              .text = value;
+                                                          if (value.isNotEmpty) {
+                                                            setState(() {
+                                                              listElementos[index]
+                                                                      .descuentoDouble =
+                                                                  int.parse(value)
+                                                                      .toDouble();
+                                                              listElementos[index]
+                                                                  .monto = listElementos[
+                                                                          index]
+                                                                      .precio *
+                                                                  listElementos[
+                                                                          index]
+                                                                      .cantidadInt;
+                                                              print(
+                                                                  '0.2) este es el descuento: ${listElementos[index].descuentoDouble}');
+                                                            });
+                                                          } else {
+                                                            print(
+                                                                '0.3) no hay descuento');
+                                                            setState(() {
+                                                              listElementos[index]
+                                                                      .descuentoDouble =
+                                                                  0.00;
+                                                              listElementos[index]
+                                                                  .monto = listElementos[
+                                                                          index]
+                                                                      .precio *
+                                                                  listElementos[
+                                                                          index]
+                                                                      .cantidadInt;
+                                                              print(
+                                                                  '0.4) este es el monto sin descuento: ${listElementos[index].monto}');
+                                                            });
+                                                          }
+                                
+                                                          listElementos[index]
+                                                              .monto = listElementos[
+                                                                      index]
+                                                                  .monto -
+                                                              listElementos[index]
+                                                                  .descuentoDouble;
+                                                          print(
+                                                              '0.5) este es el monto con descuento: ${listElementos[index].monto}');
+                                                        },
+                                                        validator: (value) {
+                                                          if (value is String) {
+                                                            if (listElementos[
+                                                                    index]
+                                                                .cantidad
+                                                                .isNotEmpty) {
+                                                              if (int.parse(value)
+                                                                      .toDouble() >=
+                                                                  (listElementos[
+                                                                              index]
+                                                                          .precio *
+                                                                      listElementos[
+                                                                              index]
+                                                                          .cantidadInt)) {
+                                                                return 'El descuento debe ser menor al monto: ${listElementos[index].precio * listElementos[index].cantidadInt}';
+                                                              } else {
+                                                                return null;
+                                                              }
+                                                            } else {
+                                                              return 'Primero debes poner la cantidad';
+                                                            }
+                                                          }
+                                                          return null;
+                                                        },
+                                                        style: const TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                
+                                                      const SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      ElevatedButton(
+                                                          onPressed:
+                                                              promo.descuentoDouble >
+                                                                          0 &&
+                                                                      promo.cantidadInt >
+                                                                          0
+                                                                  ? () {
+                                                                      showModalBottomSheet(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (BuildContext
+                                                                                context) {
+                                                                          return StatefulBuilder(builder: (BuildContext
+                                                                                  context,
+                                                                              StateSetter
+                                                                                  setState) {
+                                                                            return Container(
+                                                                              height:
+                                                                                  280,
+                                                                              width:
+                                                                                  MediaQuery.of(context).size.width,
+                                                                              padding:
+                                                                                  const EdgeInsets.all(16.0),
+                                                                              child:
+                                                                                  Column(
+                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                mainAxisSize: MainAxisSize.min,
+                                                                                children: [
+                                                                                  const Text(
+                                                                                    'Autorizado por:',
+                                                                                    style: TextStyle(
+                                                                                      color: Color.fromARGB(255, 3, 64, 113),
+                                                                                      fontSize: 20,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                    ),
+                                                                                  ),
+                                                                                  const SizedBox(height: 10),
+                                                                                  TextFormField(
+                                                                                    controller: promo.nombreAutorizador,
+                                                                                    style: const TextStyle(
+                                                                                      fontSize: 15,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      color: Color.fromARGB(255, 1, 41, 75),
+                                                                                    ),
+                                                                                    decoration: const InputDecoration(
+                                                                                      filled: true,
+                                                                                      fillColor: Colors.white,
+                                                                                      labelText: "Nombre:",
+                                                                                      labelStyle: TextStyle(
+                                                                                        color: Color.fromARGB(255, 0, 48, 87),
+                                                                                        fontSize: 13,
+                                                                                      ),
+                                                                                    ),
+                                                                                    onChanged: (value) {
+                                                                                      setState(() {
+                                                                                        listElementos[index].nombreAutorizador.text = value;
+                                                                                      });
+                                                                                    },
+                                                                                  ),
+                                                                                  TextFormField(
+                                                                                    controller: promo.cargoAutorizador,
+                                                                                    style: const TextStyle(
+                                                                                      fontSize: 15,
+                                                                                      fontWeight: FontWeight.bold,
+                                                                                      color: Color.fromARGB(255, 1, 41, 75),
+                                                                                    ),
+                                                                                    decoration: const InputDecoration(
+                                                                                      filled: true,
+                                                                                      fillColor: Colors.white,
+                                                                                      labelText: "Cargo:",
+                                                                                      labelStyle: TextStyle(
+                                                                                        color: Color.fromARGB(255, 0, 48, 87),
+                                                                                        fontSize: 13,
+                                                                                      ),
+                                                                                    ),
+                                                                                    onChanged: (value) {
+                                                                                      setState(() {
+                                                                                        listElementos[index].cargoAutorizador.text = value;
+                                                                                      });
+                                                                                    },
+                                                                                  ),
+                                                                                  const SizedBox(height: 10),
+                                                                                  ElevatedButton(
+                                                                                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 1, 62, 111))),
+                                                                                    onPressed: promo.cargoAutorizador.text.isNotEmpty && promo.nombreAutorizador.text.isNotEmpty
+                                                                                        ? () {
+                                                                                            print("datos de observacion añadidos");
+                                                                                            setState(() {
+                                                                                              promo.observacion = "Descuento aprobado por ${promo.nombreAutorizador.text} - ${promo.cargoAutorizador.text}";
+                                                                                              print(promo.observacion);
+                                                                                            });
+                                                                                            Navigator.pop(context);
+                                                                                          }
+                                                                                        : null,
+                                                                                    child: const Row(
+                                                                                      children: [
+                                                                                        Icon(
+                                                                                          Icons.account_box_outlined,
+                                                                                          color: Colors.blue,
+                                                                                          size: 25,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          ' Confirmar',
+                                                                                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, color: Color.fromARGB(255, 77, 231, 82)),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            );
+                                                                          });
+                                                                        },
+                                                                      );
+                                                                    }
+                                                                  : null,
+                                                          child:
+                                                              Text("Confirmar?"))
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        } else {
+                                          return Container(
+                                            child: Text("NO PRODUCTS"),
+                                          );
+                                        }
+                                
+                                        // Producto producto = listProducts[index];
+                                      })),
+                                ),
                               ),
                             ],
                           ),
@@ -1938,7 +1942,7 @@ class _InicioState extends State<Inicio> {
                     // UBICACIÓN
 
                     Container(
-                      //color:Colors.red,
+                     // color:Colors.red,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1952,7 +1956,9 @@ class _InicioState extends State<Inicio> {
                           Container(
                               padding: const EdgeInsets.all(10),
                               width: 500,
-                              height: 700,
+                              height:MediaQuery.of(context).size.width > 1536 ?
+                               700 : MediaQuery.of(context).size.width <=1536 ?
+                               530 : 0,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   color: Colors.grey),

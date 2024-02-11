@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:desktopapp/components/empleado/armado.dart';
 import 'package:desktopapp/components/empleado/inicio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/single_child_widget.dart';
 
 
 class Login1 extends StatefulWidget {
@@ -26,6 +23,7 @@ class _Login1State extends State<Login1> {
   late UserModel userData;
   late int status = 0;
   late int rol = 0;
+  DateTime tiempo = DateTime.now();
 
   Future<dynamic> loginsol(username, password) async {
     try {
@@ -44,7 +42,7 @@ class _Login1State extends State<Login1> {
         if(data['usuario']['rol_id']==2){
           userData = UserModel(
             id: data['usuario']['id'] ?? 0,
-           nombre: data['usuario']['nombre'] ?? '',
+           nombre: data['usuario']['nombres'] ?? '',
             apellidos: data['usuario']['apellidos'] ?? ''
             );
             setState(() {
@@ -60,7 +58,7 @@ class _Login1State extends State<Login1> {
         else if(data['usuario']['rol_id']==1){
           userData=UserModel(
             id: data['usuario']['id'],
-           nombre: data['usuario']['nombre'], 
+           nombre: data['usuario']['nombres'], 
            apellidos: data['usuario']['apellidos']);
            setState(() {
              status=200;
@@ -112,7 +110,7 @@ class _Login1State extends State<Login1> {
         child: Container(
           decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('lib/imagenes/ruteando.jpg'),
+                  image: AssetImage('lib/imagenes/aguita.png'),
                   fit: BoxFit.fill)),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -172,7 +170,14 @@ class _Login1State extends State<Login1> {
                   ),
                 ),
                  Container(
-                margin: const EdgeInsets.only(left: 20),
+                margin: const EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.all(8),
+                height: 60,
+                width: MediaQuery.of(context).size.width / 5,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20)
+                ),
                 child: ElevatedButton(
                   onPressed: () async {
                    
@@ -266,6 +271,13 @@ class _Login1State extends State<Login1> {
                   ),
                 ),
               ),
+              Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: Text("COTECSA ${tiempo.year}",
+                style: TextStyle(color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.w500),),
+              )
               ]),
             ),
           ),
