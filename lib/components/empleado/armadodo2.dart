@@ -171,6 +171,7 @@ class _Armado2State extends State<Armado2> {
   List<Marker> marcadores = [];
   List<Marker> expressmarker = [];
   List<Marker> normalmarker = [];
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   Map<LatLng, Color> coloreSeleccionados = {};
 
@@ -180,6 +181,10 @@ class _Armado2State extends State<Armado2> {
     getPedidos();
     getConductores();
     // marcadoresPut();
+  }
+
+  Future<dynamic> refresh() async {
+    setState(() {});
   }
 
   Future<dynamic> getConductores() async {
@@ -321,19 +326,21 @@ class _Armado2State extends State<Armado2> {
 
                   // ignore: unnecessary_null_comparison
                   if (pedidoEncontrado != null) {
-                  
+                    print("pedido encontrado");
+                    print(pedidoEncontrado);
                     setState(() {
-                      //  seleccionadosUbicaciones.add(coordenadas);
                       pedidoSeleccionado.add(pedidoEncontrado);
+                      pedidoEncontrado.estado = 'en proceso';
                     });
 
                     //  getUbicacionSeleccionada();
                   }
+                  setState(() {});
                 },
                 child: Container(
                     //color: sinSeleccionar,
-                    height: 10,
-                    width: 10,
+                    height: 60,
+                    width: 60,
                     child: Image.asset(
                         'lib/imagenes/azul.png') /*Icon(Icons.location_on_outlined,
               size: 40,color: Colors.blueAccent,)*/
@@ -347,6 +354,7 @@ class _Armado2State extends State<Armado2> {
       for (LatLng coordenadas in puntosexpress) {
         print("----puntos express-------");
         //print(puntosget);
+        print("tamaño de puntos express");
         print(puntosexpress.length);
 
         coloreSeleccionados[coordenadas] = sinSeleccionar;
@@ -393,6 +401,7 @@ class _Armado2State extends State<Armado2> {
                     setState(() {
                       //  seleccionadosUbicaciones.add(coordenadas);
                       pedidoSeleccionado.add(pedidoEncontradoExpress);
+                      pedidoEncontradoExpress.estado = 'en proceso';
                     });
 
                     //  getUbicacionSeleccionada();
@@ -400,10 +409,10 @@ class _Armado2State extends State<Armado2> {
                 },
                 child: Container(
                     //color: sinSeleccionar,
-                    height: 10,
-                    width: 10,
+                    height: 80,
+                    width: 40,
                     child: Image.asset(
-                        'lib/imagenes/express.png') /*Icon(Icons.location_on_outlined,
+                        'lib/imagenes/amber.png') /*Icon(Icons.location_on_outlined,
               size: 40,color: Colors.blueAccent,)*/
                     ),
               ),
@@ -461,6 +470,7 @@ class _Armado2State extends State<Armado2> {
                     setState(() {
                       //  seleccionadosUbicaciones.add(coordenadas);
                       pedidoSeleccionado.add(pedidoEncontrado);
+                      pedidoEncontrado.estado = 'en proceso';
                     });
 
                     //  getUbicacionSeleccionada();
@@ -517,6 +527,7 @@ class _Armado2State extends State<Armado2> {
             fechaparseadas = DateTime.parse(pedidosget[i].fecha.toString());
             if (pedidosget[i].estado == 'pendiente') {
               if (pedidosget[i].tipo == 'normal') {
+                // SI ES NORMAL
                 if (fechaparseadas.year == now.year &&
                     fechaparseadas.month == now.month &&
                     fechaparseadas.day == now.day) {
@@ -529,16 +540,18 @@ class _Armado2State extends State<Armado2> {
               } else if (pedidosget[i].tipo == 'express') {
                 hoyexpress.add(pedidosget[i]);
               }
+            } else {
+              setState(() {});
             }
           }
         });
 
         // OBTENER COORDENADAS DE LOS PEDIDOS
         for (var i = 0; i < pedidosget.length; i++) {
-          LatLng coord = LatLng(
+          LatLng coordGET = LatLng(
               pedidosget[i].latitud ?? 0.0, pedidosget[i].longitud ?? 0.0);
           setState(() {
-            puntosget.add(coord);
+            puntosget.add(coordGET);
           });
         }
         print("PUNTOS GET");
@@ -546,6 +559,7 @@ class _Armado2State extends State<Armado2> {
 
         // PONER MARCADOR PARA AGENDADOS
         marcadoresPut("agendados");
+        setState(() {});
       }
     } catch (e) {
       throw Exception('Error $e');
@@ -560,7 +574,7 @@ class _Armado2State extends State<Armado2> {
       'autoConnect': true,
       'reconnect': true,
       'reconnectionAttempts': 5,
-      'reconnectionDelay': 500 //1000,
+      'reconnectionDelay': 1000,
     });
 
     socket.connect();
@@ -632,7 +646,7 @@ class _Armado2State extends State<Armado2> {
                 });
               }
             } else {
-              // agendados.add(nuevoPedido);
+              agendados.add(nuevoPedido);
             }
           } else if (nuevoPedido.tipo == 'express') {
             print(nuevoPedido);
@@ -777,6 +791,7 @@ class _Armado2State extends State<Armado2> {
                         height: 500,
                         //color: Colors.grey,
                         child: ListView.builder(
+                            key: _listKey,
                             itemCount: agendados.length,
                             itemBuilder: ((context, index) {
                               return Container(
@@ -784,8 +799,12 @@ class _Armado2State extends State<Armado2> {
                                 padding: const EdgeInsets.all(6),
                                 height: 120,
                                 decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 120, 121, 124)
-                                        .withOpacity(0.4),
+                                    color:
+                                        agendados[index].estado == 'pendiente'
+                                            ? Color.fromARGB(255, 120, 121, 124)
+                                                .withOpacity(0.4)
+                                            : Color.fromARGB(255, 12, 46, 14)
+                                                .withOpacity(0.4),
                                     borderRadius: BorderRadius.circular(20)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -819,8 +838,10 @@ class _Armado2State extends State<Armado2> {
                                       "Estado: ${agendados[index].estado}",
                                       style: TextStyle(
                                           fontSize: 12,
-                                          color:
-                                              Color.fromARGB(255, 244, 54, 108),
+                                          color: agendados[index].estado =='pendiente' ?
+                                              Color.fromARGB(255, 244, 54, 108) :
+                                              agendados[index].estado == 'en proceso' ? 
+                                              Colors.amber : Colors.black,
                                           fontWeight: FontWeight.bold),
                                     )
                                   ],
@@ -909,8 +930,11 @@ class _Armado2State extends State<Armado2> {
                                 child: Card(
                                   elevation: 8,
                                   borderOnForeground: true,
-                                  color: Color.fromARGB(255, 1, 44, 79)
-                                      .withOpacity(0.75),
+                                  color: hoypedidos[index].estado == 'pendiente'
+                                      ? Color.fromARGB(255, 1, 44, 79)
+                                          .withOpacity(0.75)
+                                      : const Color.fromARGB(255, 15, 59, 16)
+                                          .withOpacity(0.75),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
@@ -948,7 +972,9 @@ class _Armado2State extends State<Armado2> {
                                         Text(
                                             "Estado: ${hoypedidos[index].estado}",
                                             style: TextStyle(
-                                              color: Colors.white,
+                                              color:hoypedidos[index].estado == 'pendiente' ?
+                                               Colors.white : hoypedidos[index].estado == 'en proceso'?
+                                                Colors.amber : Colors.black,
                                               fontWeight: FontWeight.bold,
                                             )),
                                       ],
@@ -1014,8 +1040,11 @@ class _Armado2State extends State<Armado2> {
                                 child: Card(
                                   elevation: 8,
                                   borderOnForeground: true,
-                                  color: Color.fromARGB(255, 246, 188, 15)
-                                      .withOpacity(0.7),
+                                  color: hoyexpress[index].estado == 'pendiente'
+                                      ? Color.fromARGB(255, 246, 188, 15)
+                                          .withOpacity(0.7)
+                                      : Color.fromARGB(255, 18, 84, 20)
+                                          .withOpacity(0.7),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
@@ -1285,35 +1314,86 @@ class _Armado2State extends State<Armado2> {
                     onPressed: (pedidoSeleccionado.isNotEmpty &&
                             obtenerConductor.isNotEmpty)
                         ? () async {
-                            print(obtenerConductor);
-                            await crearobtenerYactualizarRuta(
-                                userProvider.user?.id,
-                                conductorid,
-                                0,
-                                0,
-                                "en proceso");
+                            showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                title: const Text('Crear Ruta - Conductor'),
+                                content: const Text('¿Crear?'),
+                                actions: <Widget>[
+                                  // CANCELAR
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        pedidoSeleccionado = [];
+                                        obtenerConductor = [];
+                                      });
+                                      Navigator.pop(context, 'CANCELAR');
+                                    },
+                                    child: const Text('Cancelar'),
+                                  ),
 
-                            for (var i = 0; i < obtenerConductor.length; i++) {
-                              setState(() {
-                                obtenerConductor[i].seleccionado = false;
-                              });
-                            }
-                            setState(() {
-                              pedidoSeleccionado = [];
-                            });
-                            setState(() {
-                              // SE USA PARA ACTUALIZAR LA VISTA
-                            });
+                                  // CONFIRMAR
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      // Muestra el indicador de progreso
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (BuildContext context) {
+                                          return Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        },
+                                      );
+
+                                      print(obtenerConductor);
+                                      await crearobtenerYactualizarRuta(
+                                        userProvider.user?.id,
+                                        conductorid,
+                                        0,
+                                        0,
+                                        "en proceso",
+                                      );
+
+                                      for (var i = 0;
+                                          i < obtenerConductor.length;
+                                          i++) {
+                                        setState(() {
+                                          obtenerConductor[i].seleccionado =
+                                              false;
+                                        });
+                                      }
+
+                                      // Limpiar y ocultar el indicador de progreso
+                                      Navigator.pop(context);
+                                      setState(() {
+                                        pedidoSeleccionado = [];
+                                        obtenerConductor = [];
+                                      });
+
+                                      // Actualizar la interfaz de usuario
+                                      _listKey.currentState?.setState(() {});
+
+                                      Navigator.pop(context, 'CONFIRMAR');
+                                      setState(() {
+                                        
+                                      });
+                                    },
+                                    child: const Text('SI'),
+                                  ),
+                                ],
+                              ),
+                            );
                           }
                         : null,
-                    child: Text(
-                      "Crear",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: Text("Crear",style: TextStyle(
+                      color: Colors.white
+                    ),),
                     style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 1, 40, 72)
-                                .withOpacity(0.5))),
+                      backgroundColor: MaterialStateProperty.all(
+                        const Color.fromARGB(255, 1, 40, 72).withOpacity(0.5),
+                      ),
+                    ),
                   ),
                 ),
               )

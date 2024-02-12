@@ -625,6 +625,7 @@ class _ArmadoState extends State<Armado> {
                                         "Pedidos Agendados : ${agendados.length}",
                                         style: TextStyle(fontSize: 20),
                                       ),
+                                      
                                       TextField(
                                         controller: _searchController,
                                         onChanged: (value) {
