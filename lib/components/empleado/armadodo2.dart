@@ -1,4 +1,5 @@
 import 'package:desktopapp/components/empleado/inicio.dart';
+import 'package:desktopapp/components/empleado/updatearruta.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -869,6 +870,31 @@ class _Armado2State extends State<Armado2> {
                     },
                     child: Text(
                       "<< Sistema de Pedido",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color.fromARGB(255, 1, 33, 60)
+                                .withOpacity(0.8))),
+                  ),
+                ),
+              ),
+
+               // SISTEMA DE SUPERVISIÓN
+              Positioned(
+                top: 10,
+                left: 210,
+                child: Container(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Update()));
+                    },
+                    child: Text(
+                      "Sistema de Supervisión >>",
                       style: TextStyle(color: Colors.white),
                     ),
                     style: ButtonStyle(
