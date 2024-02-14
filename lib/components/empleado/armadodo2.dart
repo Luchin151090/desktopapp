@@ -1,5 +1,6 @@
 import 'package:desktopapp/components/empleado/inicio.dart';
 import 'package:desktopapp/components/empleado/updatearruta.dart';
+import 'package:desktopapp/components/provider/ruta_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -178,7 +179,7 @@ class _Armado2State extends State<Armado2> {
 
   void initState() {
     super.initState();
-    connectToServer();
+    //connectToServer();
     getPedidos();
     getConductores();
     // marcadoresPut();
@@ -251,6 +252,10 @@ class _Armado2State extends State<Armado2> {
     }
     print("RUTA ACTUALIZADA A ");
     print(ruta_id);
+
+    //ALMACENO LA RUTA EN EL PROVIDER PARA ESE CONDUCTOR 
+    Provider.of<RutaProvider>(context,listen: false).updateUser(ruta_id);
+
   }
 
   // CREAR Y OBTENER
@@ -280,7 +285,7 @@ class _Armado2State extends State<Armado2> {
 
   // FUNCIONES
   void marcadoresPut(tipo) {
-    if (tipo == 'normal') {
+    /* if (tipo == 'normal') {
       for (LatLng coordenadas in puntosnormal) {
         print("----puntos normal-------");
         //print(puntosget);
@@ -421,7 +426,8 @@ class _Armado2State extends State<Armado2> {
           );
         });
       }
-    } else if (tipo == 'agendados') {
+    }*/
+    if (tipo == 'agendados') {
       for (LatLng coordenadas in puntosget) {
         print("----puntos agendados-------");
         //print(puntosget);
@@ -769,9 +775,10 @@ class _Armado2State extends State<Armado2> {
                 child: Container(
                   padding: const EdgeInsets.all(15),
                   width: 250,
-                  //height: 600,
+                  height: MediaQuery.of(context).size.height /1.2,
                   decoration: BoxDecoration(
                       //  color: Colors.white.withOpacity(0.7),
+                      color: Colors.grey.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(20)),
                   child: Column(
                     children: [
@@ -839,10 +846,14 @@ class _Armado2State extends State<Armado2> {
                                       "Estado: ${agendados[index].estado}",
                                       style: TextStyle(
                                           fontSize: 12,
-                                          color: agendados[index].estado =='pendiente' ?
-                                              Color.fromARGB(255, 244, 54, 108) :
-                                              agendados[index].estado == 'en proceso' ? 
-                                              Colors.amber : Colors.black,
+                                          color: agendados[index].estado ==
+                                                  'pendiente'
+                                              ? Color.fromARGB(
+                                                  255, 244, 54, 108)
+                                              : agendados[index].estado ==
+                                                      'en proceso'
+                                                  ? Colors.amber
+                                                  : Colors.black,
                                           fontWeight: FontWeight.bold),
                                     )
                                   ],
@@ -860,6 +871,7 @@ class _Armado2State extends State<Armado2> {
                 top: 10,
                 left: 10,
                 child: Container(
+                  // color: Colors.grey,
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
@@ -868,24 +880,26 @@ class _Armado2State extends State<Armado2> {
                           MaterialPageRoute(
                               builder: (context) => const Inicio()));
                     },
-                    child: Text(
-                      "<< Sistema de Pedido",
-                      style: TextStyle(color: Colors.white),
-                    ),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                             const Color.fromARGB(255, 1, 33, 60)
                                 .withOpacity(0.8))),
+                    child: const Text(
+                      "<< Sistema de Pedido",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    
                   ),
                 ),
               ),
 
-               // SISTEMA DE SUPERVISIÓN
+              // SISTEMA DE SUPERVISIÓN
               Positioned(
                 top: 10,
                 left: 210,
                 child: Container(
                   height: 50,
+                  //color: Colors.grey,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -893,18 +907,19 @@ class _Armado2State extends State<Armado2> {
                           MaterialPageRoute(
                               builder: (context) => const Update()));
                     },
-                    child: Text(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color.fromARGB(255, 1, 33, 60).withOpacity(0.8))),
+                    child: const Text(
                       "Sistema de Supervisión >>",
                       style: TextStyle(color: Colors.white),
                     ),
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 1, 33, 60)
-                                .withOpacity(0.8))),
+                    
                   ),
                 ),
               ),
 
+              /*
               // HOY
               Positioned(
                 left: 10,
@@ -998,9 +1013,13 @@ class _Armado2State extends State<Armado2> {
                                         Text(
                                             "Estado: ${hoypedidos[index].estado}",
                                             style: TextStyle(
-                                              color:hoypedidos[index].estado == 'pendiente' ?
-                                               Colors.white : hoypedidos[index].estado == 'en proceso'?
-                                                Colors.amber : Colors.black,
+                                              color: hoypedidos[index].estado ==
+                                                      'pendiente'
+                                                  ? Colors.white
+                                                  : hoypedidos[index].estado ==
+                                                          'en proceso'
+                                                      ? Colors.amber
+                                                      : Colors.black,
                                               fontWeight: FontWeight.bold,
                                             )),
                                       ],
@@ -1130,6 +1149,8 @@ class _Armado2State extends State<Armado2> {
                 ),
               ),
 
+                */
+
               // CONDUCTORES
               Positioned(
                 top: MediaQuery.of(context).size.height / 8,
@@ -1211,22 +1232,22 @@ class _Armado2State extends State<Armado2> {
 
               // SELECCIONADOS
               Positioned(
-                top: 10,
-                left: MediaQuery.of(context).size.width / 2 - 500,
+                left: (MediaQuery.of(context).size.width - 500) / 2,
+                height: 150,
+                width: 500,
                 child: Container(
                   padding: const EdgeInsets.all(5),
+
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    //color: Colors.white
+                    // color: Colors.green
                   ),
                   // color: Color.fromARGB(255, 221, 214, 214),
-                  height: 150,
-                  width: MediaQuery.of(context).size.width / 2.05,
+
                   child: Column(
                     children: [
                       Center(
                         child: Container(
-                            // color: Colors.white,
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                                 color: Colors.grey.withOpacity(0.8),
@@ -1401,9 +1422,7 @@ class _Armado2State extends State<Armado2> {
                                       _listKey.currentState?.setState(() {});
 
                                       Navigator.pop(context, 'CONFIRMAR');
-                                      setState(() {
-                                        
-                                      });
+                                      setState(() {});
                                     },
                                     child: const Text('SI'),
                                   ),
@@ -1412,12 +1431,13 @@ class _Armado2State extends State<Armado2> {
                             );
                           }
                         : null,
-                    child: Text("Crear",style: TextStyle(
-                      color: Colors.white
-                    ),),
+                    child: Text(
+                      "Crear",
+                      style: TextStyle(color: Colors.white),
+                    ),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
-                        const Color.fromARGB(255, 1, 40, 72).withOpacity(0.5),
+                        const Color.fromARGB(255, 1, 40, 72).withOpacity(0.8),
                       ),
                     ),
                   ),
