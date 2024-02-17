@@ -24,8 +24,8 @@ class Pedido {
   String estado;
   String? observacion;
 
-  final double? latitud;
-  final double? longitud;
+  double? latitud;
+  double? longitud;
   String? distrito;
 
   // Atributos adicionales para el caso del GET
@@ -179,7 +179,7 @@ class _Armado2State extends State<Armado2> {
 
   void initState() {
     super.initState();
-    //connectToServer();
+    connectToServer();
     getPedidos();
     getConductores();
     // marcadoresPut();
@@ -253,9 +253,8 @@ class _Armado2State extends State<Armado2> {
     print("RUTA ACTUALIZADA A ");
     print(ruta_id);
 
-    //ALMACENO LA RUTA EN EL PROVIDER PARA ESE CONDUCTOR 
-    Provider.of<RutaProvider>(context,listen: false).updateUser(ruta_id);
-
+    //ALMACENO LA RUTA EN EL PROVIDER PARA ESE CONDUCTOR
+    Provider.of<RutaProvider>(context, listen: false).updateUser(ruta_id);
   }
 
   // CREAR Y OBTENER
@@ -285,223 +284,84 @@ class _Armado2State extends State<Armado2> {
 
   // FUNCIONES
   void marcadoresPut(tipo) {
-    /* if (tipo == 'normal') {
-      for (LatLng coordenadas in puntosnormal) {
-        print("----puntos normal-------");
-        //print(puntosget);
-        print(puntosnormal.length);
-
-        coloreSeleccionados[coordenadas] = sinSeleccionar;
-
-        setState(() {
-          normalmarker.add(
-            Marker(
-              point: coordenadas,
-              width: 50,
-              height: 50,
-              child: GestureDetector(
-                onTap: () {
-                  print("SELECCIONADO: ${coordenadas}");
-
-                  // Buscar el pedido correspondiente a las coordenadas
-                  Pedido pedidoEncontrado = hoypedidos.firstWhere(
-                    (pedido) =>
-                        _isCoordenadaIgual(
-                            pedido.latitud ?? 0.0, coordenadas.latitude) &&
-                        _isCoordenadaIgual(
-                            pedido.longitud ?? 0.0, coordenadas.longitude),
-                    orElse: () => Pedido(
-                        id: 0,
-                        subtotal: 0.0,
-                        descuento: 0.0,
-                        total: 0.0,
-                        fecha: '',
-                        tipo: '',
-                        estado: '',
-                        latitud: 0.0,
-                        longitud: 0.0,
-                        nombre: '',
-                        apellidos: '',
-                        telefono:
-                            ''), // Valor predeterminado si no se encuentra
-                  );
-                  print("encontrado");
-                  print(pedidoEncontrado);
-
-                  // Verificar que se encontró un pedido antes de agregarlo
-
-                  // ignore: unnecessary_null_comparison
-                  if (pedidoEncontrado != null) {
-                    print("pedido encontrado");
-                    print(pedidoEncontrado);
-                    setState(() {
-                      pedidoSeleccionado.add(pedidoEncontrado);
-                      pedidoEncontrado.estado = 'en proceso';
-                    });
-
-                    //  getUbicacionSeleccionada();
-                  }
-                  setState(() {});
-                },
-                child: Container(
-                    //color: sinSeleccionar,
-                    height: 60,
-                    width: 60,
-                    child: Image.asset(
-                        'lib/imagenes/azul.png') /*Icon(Icons.location_on_outlined,
-              size: 40,color: Colors.blueAccent,)*/
-                    ),
-              ),
-            ),
-          );
-        });
-      }
-    } else if (tipo == 'express') {
-      for (LatLng coordenadas in puntosexpress) {
-        print("----puntos express-------");
-        //print(puntosget);
-        print("tamaño de puntos express");
-        print(puntosexpress.length);
-
-        coloreSeleccionados[coordenadas] = sinSeleccionar;
-
-        setState(() {
-          expressmarker.add(
-            Marker(
-              point: coordenadas,
-              width: 50,
-              height: 50,
-              child: GestureDetector(
-                onTap: () {
-                  print("SELECCIONADO: ${coordenadas}");
-
-                  // Buscar el pedido correspondiente a las coordenadas
-                  Pedido pedidoEncontradoExpress = hoyexpress.firstWhere(
-                    (pedido) =>
-                        _isCoordenadaIgual(
-                            pedido.latitud ?? 0.0, coordenadas.latitude) &&
-                        _isCoordenadaIgual(
-                            pedido.longitud ?? 0.0, coordenadas.longitude),
-                    orElse: () => Pedido(
-                        id: 0,
-                        subtotal: 0.0,
-                        descuento: 0.0,
-                        total: 0.0,
-                        fecha: '',
-                        tipo: '',
-                        estado: '',
-                        latitud: 0.0,
-                        longitud: 0.0,
-                        nombre: '',
-                        apellidos: '',
-                        telefono:
-                            ''), // Valor predeterminado si no se encuentra
-                  );
-                  print("encontrado");
-                  print(pedidoEncontradoExpress);
-
-                  // Verificar que se encontró un pedido antes de agregarlo
-
-                  // ignore: unnecessary_null_comparison
-                  if (pedidoEncontradoExpress != null) {
-                    setState(() {
-                      //  seleccionadosUbicaciones.add(coordenadas);
-                      pedidoSeleccionado.add(pedidoEncontradoExpress);
-                      pedidoEncontradoExpress.estado = 'en proceso';
-                    });
-
-                    //  getUbicacionSeleccionada();
-                  }
-                },
-                child: Container(
-                    //color: sinSeleccionar,
-                    height: 80,
-                    width: 40,
-                    child: Image.asset(
-                        'lib/imagenes/amber.png') /*Icon(Icons.location_on_outlined,
-              size: 40,color: Colors.blueAccent,)*/
-                    ),
-              ),
-            ),
-          );
-        });
-      }
-    }*/
     if (tipo == 'agendados') {
-      for (LatLng coordenadas in puntosget) {
-        print("----puntos agendados-------");
-        //print(puntosget);
-        print(puntosget.length);
+      int count = 1;
 
-        coloreSeleccionados[coordenadas] = sinSeleccionar;
+      final Map<LatLng, Pedido> mapaLatPedido = {};
+
+      for (var i = 0;i<puntosget.length;i++) {
+        print("---||||||||||||||||||||---");
+        print(puntosget[i].latitude);
+        print(puntosget[i].longitude);
+        double offset = count * 0.000001;
+        LatLng coordenada = puntosget[i];
+        Pedido pedido = agendados[i];
+
+        mapaLatPedido[LatLng(coordenada.latitude,coordenada.longitude)] =pedido;
+
 
         setState(() {
           marcadores.add(
             Marker(
-              point: coordenadas,
-              width: 50,
-              height: 50,
+              point: LatLng(coordenada.latitude + offset,
+                  coordenada.longitude + offset),
+              width: 55,
+              height: 80,
               child: GestureDetector(
                 onTap: () {
-                  print("SELECCIONADO: ${coordenadas}");
-
-                  // Buscar el pedido correspondiente a las coordenadas
-                  Pedido pedidoEncontrado = agendados.firstWhere(
-                    (pedido) =>
-                        _isCoordenadaIgual(
-                            pedido.latitud ?? 0.0, coordenadas.latitude) &&
-                        _isCoordenadaIgual(
-                            pedido.longitud ?? 0.0, coordenadas.longitude),
-                    orElse: () => Pedido(
-                        id: 0,
-                        subtotal: 0.0,
-                        descuento: 0.0,
-                        total: 0.0,
-                        fecha: '',
-                        tipo: '',
-                        estado: '',
-                        latitud: 0.0,
-                        longitud: 0.0,
-                        nombre: '',
-                        apellidos: '',
-                        telefono:
-                            ''), // Valor predeterminado si no se encuentra
-                  );
-                  print("encontrado");
-                  print(pedidoEncontrado);
-
-                  // Verificar que se encontró un pedido antes de agregarlo
-
-                  // ignore: unnecessary_null_comparison
-                  if (pedidoEncontrado != null) {
-                    setState(() {
-                      //  seleccionadosUbicaciones.add(coordenadas);
-                      pedidoSeleccionado.add(pedidoEncontrado);
-                      pedidoEncontrado.estado = 'en proceso';
-                    });
-
-                    //  getUbicacionSeleccionada();
-                  }
+                  setState(() {
+                    mapaLatPedido[LatLng(coordenada.latitude,coordenada.longitude)]?.estado = 'en proceso';
+                    Pedido? pedidoencontrado = mapaLatPedido[LatLng(coordenada.latitude,coordenada.longitude)];
+                    pedidoSeleccionado.add(pedidoencontrado!);
+                  });
                 },
                 child: Container(
-                    //color: sinSeleccionar,
-                    height: 10,
-                    width: 10,
-                    child: Image.asset(
-                        'lib/imagenes/location.png') /*Icon(Icons.location_on_outlined,
+                    height: 60,
+                    width: 60,
+                    // color: Colors.grey,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 30,
+                          width: 30,
+                          padding: const EdgeInsets.all(0),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              color: Colors.white,
+                              border:
+                                  Border.all(width: 3, color: Colors.black)),
+                          child: Center(
+                              child: Text(
+                            "${count}",
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          )),
+                        ),
+                        Container(
+                          //margin: const EdgeInsets.only(right: 20),
+                          width: 50,
+                          height: 50,
+                          // color:Colors.blueGrey,
+                          decoration: BoxDecoration(
+                              // color: Colors.black,
+                              borderRadius: BorderRadius.circular(20),
+                              image: const DecorationImage(
+                                  image:
+                                      AssetImage('lib/imagenes/location.png'))),
+                        ),
+                      ],
+                    ) /*Icon(Icons.location_on_outlined,
               size: 40,color: Colors.blueAccent,)*/
                     ),
               ),
             ),
           );
         });
+        count++;
       }
     }
-
-    // print("seUbica");
-    // print(seleccionadosUbicaciones);
-    print("Pedido seleccionado");
-    print(pedidoSeleccionado);
   }
 
   Future<dynamic> getPedidos() async {
@@ -528,21 +388,40 @@ class _Armado2State extends State<Armado2> {
         }).toList();
 
         setState(() {
+
           pedidosget = tempPedido;
 
+          int count = 1;
           for (var i = 0; i < pedidosget.length; i++) {
             fechaparseadas = DateTime.parse(pedidosget[i].fecha.toString());
             if (pedidosget[i].estado == 'pendiente') {
+                print("pendi...");
               if (pedidosget[i].tipo == 'normal') {
+
+                print("normlllll");
                 // SI ES NORMAL
-                if (fechaparseadas.year == now.year &&
-                    fechaparseadas.month == now.month &&
-                    fechaparseadas.day == now.day) {
-                  if (fechaparseadas.hour < 13) {
-                    hoypedidos.add(pedidosget[i]);
-                  }
-                } else {
-                  agendados.add(pedidosget[i]);
+                if (
+                    
+                    fechaparseadas.day != now.day) {
+                 print("no es hoy");
+                 print(fechaparseadas.day);
+                
+                  setState(() {
+                    
+                    LatLng coordGET = LatLng(
+                        (pedidosget[i].latitud ?? 0.0) + (0.000001 * count),
+                       ( pedidosget[i].longitud ?? 0.0 )+ (0.000001 * count));
+
+                    puntosget.add(coordGET);
+                    pedidosget[i].latitud = coordGET.latitude;
+                    pedidosget[i].longitud = coordGET.longitude;
+
+                    print("--get posss");
+                    print(coordGET);
+                    agendados.add(pedidosget[i]);
+
+                  });
+
                 }
               } else if (pedidosget[i].tipo == 'express') {
                 hoyexpress.add(pedidosget[i]);
@@ -550,17 +429,12 @@ class _Armado2State extends State<Armado2> {
             } else {
               setState(() {});
             }
+            count++;
           }
         });
 
         // OBTENER COORDENADAS DE LOS PEDIDOS
-        for (var i = 0; i < pedidosget.length; i++) {
-          LatLng coordGET = LatLng(
-              pedidosget[i].latitud ?? 0.0, pedidosget[i].longitud ?? 0.0);
-          setState(() {
-            puntosget.add(coordGET);
-          });
-        }
+        // for (var i = 0; i < pedidosget.length; i++) {}
         print("PUNTOS GET");
         print(puntosget);
 
@@ -595,7 +469,7 @@ class _Armado2State extends State<Armado2> {
     });
 
     // CREATE PEDIDO WS://API/PRODUCTS
-    socket.on('nuevoPedido', (data) {
+    /* socket.on('nuevoPedido', (data) {
       print('Nuevo Pedido: $data');
       setState(() {
         print("DENTOR DE nuevoPèdido");
@@ -687,7 +561,7 @@ class _Armado2State extends State<Armado2> {
         duration: Duration(milliseconds: 800),
         curve: Curves.easeInOutQuart,
       );
-    });
+    });*/
 
     socket.onConnectError((error) {
       print("error de conexion $error");
@@ -761,8 +635,8 @@ class _Armado2State extends State<Armado2> {
                   MarkerLayer(
                     markers: [
                       ...marcadores,
-                      ...expressmarker,
-                      ...normalmarker,
+                      //...expressmarker,
+                      // ...normalmarker,
                     ],
                   ),
                 ],
@@ -775,7 +649,7 @@ class _Armado2State extends State<Armado2> {
                 child: Container(
                   padding: const EdgeInsets.all(15),
                   width: 250,
-                  height: MediaQuery.of(context).size.height /1.2,
+                  height: MediaQuery.of(context).size.height / 1.2,
                   decoration: BoxDecoration(
                       //  color: Colors.white.withOpacity(0.7),
                       color: Colors.grey.withOpacity(0.8),
@@ -888,7 +762,6 @@ class _Armado2State extends State<Armado2> {
                       "<< Sistema de Pedido",
                       style: TextStyle(color: Colors.white),
                     ),
-                    
                   ),
                 ),
               ),
@@ -914,7 +787,6 @@ class _Armado2State extends State<Armado2> {
                       "Sistema de Supervisión >>",
                       style: TextStyle(color: Colors.white),
                     ),
-                    
                   ),
                 ),
               ),

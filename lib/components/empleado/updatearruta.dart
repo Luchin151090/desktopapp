@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:desktopapp/components/empleado/armadodo2.dart';
 import 'package:desktopapp/components/empleado/colores.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/retry.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 
 import 'package:windows_notification/windows_notification.dart';
 import 'dart:io';
@@ -28,8 +31,8 @@ class Pedido {
   String estado;
   String? observacion;
 
-  final double? latitud;
-  final double? longitud;
+  double? latitud;
+  double? longitud;
   String? distrito;
 
   // Atributos adicionales para el caso del GET
@@ -95,6 +98,10 @@ class _UpdateState extends State<Update> {
   List<Conductor> conductorget = [];
   late io.Socket socket;
   DateTime now = DateTime.now();
+  String api = dotenv.env['API_URL'] ?? '';
+  String apipedidos = '/api/pedido';
+  double latitudtemp = 0.0;
+  double longitudtemp = 0.0;
   ScrollController _scrollController2 = ScrollController(); //HOY
   ScrollController _scrollController3 = ScrollController();
 
@@ -115,9 +122,26 @@ class _UpdateState extends State<Update> {
 
   List<Pedido> pedidoSeleccionado = [];
 
+  List<Pedido> pedidosget = [];
+  List<LatLng> puntosget = [];
+
+  late DateTime fechaparseadas;
+
+  String conductores = '/api/user_conductor';
+  String pedidosConductor = '/api/conductorPedidos/';
+
+  List<Conductor> obtenerConductor = [];
+  int conductorid = 0;
+  List<Pedido> pedidosXConductor = [];
+  Map<Conductor, List<Pedido>> mapaConductorXPedido = {};
+
+  List<Marker> marcadorAsignado = [];
+
   @override
   void initState() {
     super.initState();
+
+    //getConductores();
     initAsync();
     /* getConductores();
     connectToServer();
@@ -125,180 +149,319 @@ class _UpdateState extends State<Update> {
   }
 
   Future<void> initAsync() async {
-    connectToServer();
     await getConductores(); // Esperar a que se completen las operaciones asíncronas
-
+    connectToServer();
+    getPedidos();
     getPedidosXConductor();
   }
 
   void getPedidosXConductor() async {
     print("-------gettt----------");
     print(conductorget.length);
+    List<LatLng> puntosxconductor = [];
+    List<Pedido> iterarPedido = [];
     for (var i = 0; i < conductorget.length; i++) {
-      mapaConductorXPedido[conductorget[i]] =
+      List<Pedido> pedidostemp =
           await obtenerPedidosPorConductor(conductorget[i].id);
-      print(mapaConductorXPedido[conductorget[i]]);
-    }
-  }
+      setState(() {
+        mapaConductorXPedido[conductorget[i]] = pedidostemp;
+        iterarPedido = pedidostemp;
+      });
 
-// Función para comparar coordenadas con tolerancia
-  bool _isCoordenadaIgual(double valor1, double valor2) {
-    print("VALOR 1");
-    print(valor1);
-    print("VALOR 2");
-    print(valor2);
-    const tolerancia =
-        0.0000000001; // Puedes ajustar la tolerancia según tus necesidades
-    return (valor1 - valor2).abs() < tolerancia;
+      print(mapaConductorXPedido[conductorget[i]]);
+
+      // mostrar el conjunto de asignados x conductor
+    }
+
+    for (var k = 0; k < conductorget.length; k++) {
+      int count = 1;
+      for (var i = 0; i < iterarPedido.length; i++) {
+        puntosxconductor.add(LatLng(
+            (iterarPedido[i].latitud ?? 0.0) + (count * 0.003),
+            (iterarPedido[i].longitud ?? 0.0) + (count * 0.002)));
+        marcadorAsignado.add(Marker(
+            height: 80,
+            width: 80,
+            point: puntosxconductor[i],
+            child: Container(
+              height: 70,
+              width: 70,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  border: Border.all(
+                      width: 2,
+                      color: containerColors[k % containerColors.length])),
+              child: Center(
+                  child: Text(
+                "$count",
+                style: TextStyle(fontSize: 28),
+              )),
+            )));
+        count++;
+      }
+    }
   }
 
   void marcadoresPut(tipo) {
     if (tipo == 'normal') {
-      for (LatLng coordenadas in puntosnormal) {
-        print("----puntos normal-------");
-        //print(puntosget);
-        print(puntosnormal.length);
+      int count = 1;
 
-        setState(() {
-          normalmarker.add(
-            Marker(
-              point: coordenadas,
-              width: 50,
-              height: 50,
-              child: GestureDetector(
-                onTap: () {
-                  print("SELECCIONADO: ${coordenadas}");
+      print("----puntos normal-------");
 
-                  // Buscar el pedido correspondiente a las coordenadas
-                  Pedido pedidoEncontrado = hoypedidos.firstWhere(
-                    (pedido) =>
-                        _isCoordenadaIgual(
-                            pedido.latitud ?? 0.0, coordenadas.latitude) &&
-                        _isCoordenadaIgual(
-                            pedido.longitud ?? 0.0, coordenadas.longitude),
-                    orElse: () => Pedido(
-                        id: 0,
-                        subtotal: 0.0,
-                        descuento: 0.0,
-                        total: 0.0,
-                        fecha: '',
-                        tipo: '',
-                        estado: '',
-                        latitud: 0.0,
-                        longitud: 0.0,
-                        nombre: '',
-                        apellidos: '',
-                        telefono:
-                            ''), // Valor predeterminado si no se encuentra
-                  );
-                  print("encontrado");
-                  print(pedidoEncontrado);
+      // AQUI ITERA LAS COORDENADAS DE LA LISTA PUNTOSNORMAL
+      // PARA QUE POR CADA ITERACION MUESTRE UN MARCADOR
 
-                  // Verificar que se encontró un pedido antes de agregarlo
+      final Map<LatLng, Pedido> mapaLatPedido = {};
 
-                  // ignore: unnecessary_null_comparison
-                  if (pedidoEncontrado != null) {
-                    print("pedido encontrado");
-                    print(pedidoEncontrado);
-                    setState(() {
-                      pedidoSeleccionado.add(pedidoEncontrado);
-                      pedidoEncontrado.estado = 'en proceso';
-                    });
+      for (var i = 0; i < puntosnormal.length; i++) {
+        double offset = count * 0.000001;
+        LatLng coordenada = puntosnormal[i];
+        Pedido pedido = hoypedidos[i];
 
-                    //  getUbicacionSeleccionada();
-                  }
-                  setState(() {});
-                },
-                child: Container(
-                    //color: sinSeleccionar,
-                    height: 60,
-                    width: 60,
-                    child: Image.asset(
-                        'lib/imagenes/azul.png') /*Icon(Icons.location_on_outlined,
+        mapaLatPedido[LatLng(coordenada.latitude, coordenada.longitude)] =
+            pedido;
+
+        print("${coordenada.latitude} - ${coordenada.longitude}");
+        normalmarker.add(
+          Marker(
+            // LE AÑADO MAS TOLERANCIA PARA QUE SEA VISIBLE
+
+            point: LatLng(
+                coordenada.latitude + offset, coordenada.longitude + offset),
+            width: 200,
+            height: 200,
+            child: GestureDetector(
+              onTap: () {
+                print(mapaLatPedido[
+                        LatLng(coordenada.latitude, coordenada.longitude)]
+                    ?.id);
+                setState(() {
+                  mapaLatPedido[
+                          LatLng(coordenada.latitude, coordenada.longitude)]
+                      ?.estado = 'en proceso';
+                  Pedido? pedidoencontrado = mapaLatPedido[
+                      LatLng(coordenada.latitude, coordenada.longitude)];
+                  pedidoSeleccionado.add(pedidoencontrado!);
+                });
+              },
+              child: Container(
+                  //color: sinSeleccionar,
+                  height: 90,
+                  width: 90,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 40,
+                        width: 40,
+                        padding: const EdgeInsets.all(0),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            color: Colors.white,
+                            border: Border.all(width: 3, color: Colors.black)),
+                        child: Center(
+                            child: Text(
+                          "${count}",
+                          style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600),
+                        )),
+                      ),
+                      Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: DecorationImage(
+                                image: AssetImage('lib/imagenes/azul.png'))),
+                      ),
+                    ],
+                  ) /*Icon(Icons.location_on_outlined,
               size: 40,color: Colors.blueAccent,)*/
-                    ),
-              ),
+                  ),
             ),
-          );
-        });
+          ),
+        );
+
+        count++;
       }
+      print("Pedido seleccionado");
+      print(pedidoSeleccionado);
     } else if (tipo == 'express') {
-      for (LatLng coordenadas in puntosexpress) {
-        print("----puntos express-------");
-        //print(puntosget);
-        print("tamaño de puntos express");
-        print(puntosexpress.length);
+      int count = 1;
+      print("----puntos express-------");
+
+      final Map<LatLng, Pedido> mapaLatPedidox = {};
+
+      for (var i = 0; i < puntosexpress.length; i++) {
+        double offset = count * 0.000001;
+        LatLng coordenadax = puntosexpress[i];
+        Pedido pedidox = hoyexpress[i];
+
+        mapaLatPedidox[LatLng(coordenadax.latitude, coordenadax.longitude)] =
+            pedidox;
 
         setState(() {
           expressmarker.add(
             Marker(
-              point: coordenadas,
-              width: 50,
-              height: 50,
+              point: LatLng(coordenadax.latitude + offset,
+                  coordenadax.longitude + offset),
+              width: 200,
+              height: 200,
               child: GestureDetector(
                 onTap: () {
-                  print("SELECCIONADO: ${coordenadas}");
-
-                  // Buscar el pedido correspondiente a las coordenadas
-                  Pedido pedidoEncontradoExpress = hoyexpress.firstWhere(
-                    (pedido) =>
-                        _isCoordenadaIgual(
-                            pedido.latitud ?? 0.0, coordenadas.latitude) &&
-                        _isCoordenadaIgual(
-                            pedido.longitud ?? 0.0, coordenadas.longitude),
-                    orElse: () => Pedido(
-                        id: 0,
-                        subtotal: 0.0,
-                        descuento: 0.0,
-                        total: 0.0,
-                        fecha: '',
-                        tipo: '',
-                        estado: '',
-                        latitud: 0.0,
-                        longitud: 0.0,
-                        nombre: '',
-                        apellidos: '',
-                        telefono:
-                            ''), // Valor predeterminado si no se encuentra
-                  );
-                  print("encontrado");
-                  print(pedidoEncontradoExpress);
-
-                  // Verificar que se encontró un pedido antes de agregarlo
-
-                  // ignore: unnecessary_null_comparison
-                  if (pedidoEncontradoExpress != null) {
-                    setState(() {
-                      //  seleccionadosUbicaciones.add(coordenadas);
-                      pedidoSeleccionado.add(pedidoEncontradoExpress);
-                      pedidoEncontradoExpress.estado = 'en proceso';
-                    });
-
-                    //  getUbicacionSeleccionada();
-                  }
+                  setState(() {
+                    mapaLatPedidox[
+                            LatLng(coordenadax.latitude, coordenadax.longitude)]
+                        ?.estado = 'en proceso';
+                    Pedido? pedidoencontradox = mapaLatPedidox[
+                        LatLng(coordenadax.latitude, coordenadax.longitude)];
+                    pedidoSeleccionado.add(pedidoencontradox!);
+                  });
                 },
                 child: Container(
                     //color: sinSeleccionar,
-                    height: 80,
-                    width: 40,
-                    child: Image.asset(
-                        'lib/imagenes/amber.png') /*Icon(Icons.location_on_outlined,
+                    height: 90,
+                    width: 90,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 40,
+                          width: 40,
+                          padding: const EdgeInsets.all(0),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              color: Colors.white,
+                              border:
+                                  Border.all(width: 3, color: Colors.black)),
+                          child: Center(
+                              child: Text(
+                            "${count}",
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          )),
+                        ),
+                        Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: const DecorationImage(
+                                  image: AssetImage('lib/imagenes/amber.png'))),
+                        ),
+                      ],
+                    ) /*Icon(Icons.location_on_outlined,
               size: 40,color: Colors.blueAccent,)*/
                     ),
               ),
             ),
           );
         });
+        count++;
       }
     }
-
-    // print("seUbica");
-    // print(seleccionadosUbicaciones);
-    print("Pedido seleccionado");
-    print(pedidoSeleccionado);
   }
 
-  // WEB SOCKET
+  Future<dynamic> getPedidos() async {
+    try {
+      var res = await http.get(Uri.parse(api + apipedidos),
+          headers: {"Content-type": "application/json"});
+      if (res.statusCode == 200) {
+        var data = json.decode(res.body);
+        List<Pedido> tempPedido = data.map<Pedido>((data) {
+          return Pedido(
+              id: data['id'],
+              ruta_id: data['ruta_id'] ?? 0,
+              subtotal: data['subtotal']?.toDouble() ?? 0.0,
+              descuento: data['descuento']?.toDouble() ?? 0.0,
+              total: data['total']?.toDouble() ?? 0.0,
+              fecha: data['fecha'],
+              tipo: data['tipo'],
+              estado: data['estado'],
+              latitud: data['latitud']?.toDouble() ?? 0.0,
+              longitud: data['longitud']?.toDouble() ?? 0.0,
+              nombre: data['nombre'] ?? '',
+              apellidos: data['apellidos'] ?? '',
+              telefono: data['telefono'] ?? '');
+        }).toList();
+
+        setState(() {
+          pedidosget = tempPedido;
+          int count = 1;
+          for (var i = 0; i < pedidosget.length; i++) {
+            fechaparseadas = DateTime.parse(pedidosget[i].fecha.toString());
+            if (pedidosget[i].estado == 'pendiente') {
+              if (pedidosget[i].tipo == 'normal') {
+                // SI ES NORMAL
+                if (fechaparseadas.year == now.year &&
+                    fechaparseadas.month == now.month &&
+                    fechaparseadas.day == now.day) {
+                  if (fechaparseadas.hour < 13) {
+                    setState(() {
+                      latitudtemp =
+                          (pedidosget[i].latitud ?? 0.0) + (0.000001 * count);
+                      longitudtemp =
+                          (pedidosget[i].longitud ?? 0.0) + (0.000001 * count);
+                      LatLng tempcoord = LatLng(latitudtemp, longitudtemp);
+                      // SETEANDO PUNTOS NORMAL
+
+                      puntosnormal.add(tempcoord);
+
+                      pedidosget[i].latitud = latitudtemp;
+                      pedidosget[i].longitud = longitudtemp;
+                      hoypedidos.add(pedidosget[i]);
+                    });
+                    setState(() {
+                      // ACTUALIZAMOS LA VISTA
+                    });
+                  }
+                }
+              } else if (pedidosget[i].tipo == 'express') {
+                setState(() {
+                  latitudtemp =
+                      (pedidosget[i].latitud ?? 0.0) + (0.000001 * count);
+                  longitudtemp =
+                      (pedidosget[i].longitud ?? 0.0) + (0.000001 * count);
+                  LatLng tempcoordexpress = LatLng(latitudtemp, longitudtemp);
+                  // OBTENER COORDENADAS DE LOS EXPRESS
+
+                  puntosexpress.add(tempcoordexpress);
+
+                  pedidosget[i].latitud = latitudtemp;
+                  pedidosget[i].longitud = longitudtemp;
+                  hoyexpress.add(pedidosget[i]);
+                });
+                setState(() {
+                  // ACTUALIZAMOS LA VISTA
+                });
+              }
+            }
+            setState(() {});
+            count++;
+          }
+        });
+        marcadoresPut("normal");
+        setState(() {
+          // ACTUALIZAMOS LA VISTA
+        });
+        marcadoresPut("express");
+        setState(() {
+          // ACTUALIZAMOS LA VISTA
+        });
+
+        // OBTENER COORDENADAS DE LOS PEDIDOS
+        // for (var i = 0; i < pedidosget.length; i++) {}
+        print("PUNTOS GET");
+        print(puntosget);
+      }
+    } catch (e) {
+      throw Exception('Error $e');
+    }
+  }
+
   void connectToServer() {
     print("-----CONEXIÓN------");
 
@@ -380,9 +543,9 @@ class _UpdateState extends State<Update> {
                   // ACTUALIZAMOS LA VISTA
                 });
               }
-            } else {
+            } /*else {
               agendados.add(nuevoPedido);
-            }
+            }*/
           } else if (nuevoPedido.tipo == 'express') {
             print(nuevoPedido);
 
@@ -480,16 +643,6 @@ class _UpdateState extends State<Update> {
     return imageFile.path;
   }
 
-  var numero = 9.9090;
-  String api = dotenv.env['API_URL'] ?? '';
-  String conductores = '/api/user_conductor';
-  String pedidosConductor = '/api/conductorPedidos/';
-
-  List<Conductor> obtenerConductor = [];
-  int conductorid = 0;
-  List<Pedido> pedidosXConductor = [];
-  Map<Conductor, List<Pedido>> mapaConductorXPedido = {};
-
   Future<dynamic> getConductores() async {
     try {
       var res = await http.get(Uri.parse(api + conductores),
@@ -572,6 +725,7 @@ class _UpdateState extends State<Update> {
                     markers: [
                       ...normalmarker,
                       ...expressmarker,
+                      ...marcadorAsignado,
                     ],
                   ),
                 ],
@@ -584,7 +738,7 @@ class _UpdateState extends State<Update> {
                 child: Container(
                     margin: const EdgeInsets.only(right: 20),
                     width: MediaQuery.of(context).size.width / 5,
-                    height: MediaQuery.of(context).size.height,
+                    height: MediaQuery.of(context).size.height/1.75,
                     //color: Colors.amber,
                     child: ListView.builder(
                         itemCount: conductorget.length,
@@ -593,9 +747,10 @@ class _UpdateState extends State<Update> {
 
                           return Container(
                               margin: const EdgeInsets.only(top: 10, right: 20),
-                              height: 550,
+                              padding: const EdgeInsets.all(5),
+                              height: 350,
                               decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.65),
+                                  color: Colors.grey.withOpacity(0.9),
                                   borderRadius: BorderRadius.circular(20)),
                               child: Column(
                                 children: [
@@ -645,27 +800,37 @@ class _UpdateState extends State<Update> {
                                     ),
                                   ),
                                   Container(
-                                    height: 350,
+                                    padding: const EdgeInsets.all(5),
+                                    height: 230,
                                     child: ListView.builder(
                                         itemCount: mapaConductorXPedido[
-                                                conductorget[index1]]
-                                            ?.length ?? 0, // conductormatriz[index1].length
+                                                    conductorget[index1]]
+                                                ?.length ??
+                                            0, // conductormatriz[index1].length
                                         itemBuilder: (context, index2) {
                                           // LISTVIEW SECUNDARIO
                                           return Container(
                                             margin:
                                                 const EdgeInsets.only(top: 3),
-                                            padding: const EdgeInsets.all(9),
-                                            color: Colors.white,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(20)
+                                            ),
+                                            child: Column(
+                                             
                                               children: [
                                                 Text(
                                                     "Pedido N° ${mapaConductorXPedido[conductorget[index1]]?[index2].id}"),
                                                 Text(
-                                                    "Estado:  ${mapaConductorXPedido[conductorget[index1]]?[index2].estado}")
+                                                    "Estado:  ${mapaConductorXPedido[conductorget[index1]]?[index2].estado}"),
+                                                Column(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text("Nombre: ${mapaConductorXPedido[conductorget[index1]]?[index2].nombre}"),
+                                                  ],
+                                                )
+                                              
                                               ],
                                             ),
                                           );
@@ -684,7 +849,7 @@ class _UpdateState extends State<Update> {
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    //color: Colors.white
+                   // color: Colors.grey
                   ),
                   // color: Color.fromARGB(255, 221, 214, 214),
                   // height: 180,
