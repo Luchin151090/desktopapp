@@ -127,6 +127,7 @@ class _InicioState extends State<Inicio> {
       "https://api.openweathermap.org/data/2.5/weather?q=Arequipa&appid=08607bf479e5f47f5b768154953d10f6";
   String apiProducts = '/api/products';
   String apiProductsbyPromos = '/api/productsbypromo/';
+  String apiLastUbi = '/api/pedido_clientenr/';
   String apiClienteNR = '/api/clientenr';
   String apiPromos = '/api/promocion';
   String apiPedidos = '/api/pedido';
@@ -137,6 +138,7 @@ class _InicioState extends State<Inicio> {
   double montoMinimo = 10;
   int empleadoID = 1;
   int lastClienteNR = 0;
+  int lastUbic = 0;
   double montoTotalPedido = 0;
   double descuentoTotalPedido = 0;
   String observacionFinal = '';
@@ -377,7 +379,9 @@ class _InicioState extends State<Inicio> {
     }
 
     await lastClienteNrID(empleadoID);
+    await lastUbi(lastClienteNR);
     print('7.4) este es el ultimo cliente no registrado: $lastClienteNR');
+    print("7.4.1 ult5ima ubicacion $lastUbic");
     print('8) creado de pedido');
     print('8.1) Este es el tiempo GMT: ${tiempoActual.toString()}');
     print('8.2) Este es el tiempo de peru: ${tiempoGMTPeru.toString()}');
@@ -388,7 +392,7 @@ class _InicioState extends State<Inicio> {
         descuentoTotalPedido,
         tipo,
         "pendiente",
-        observacionFinal);
+        observacionFinal,lastUbic);
 
     print("10) creando detalles de pedidos");
 
@@ -413,6 +417,7 @@ class _InicioState extends State<Inicio> {
 
     await pedidoCancelado();
   }
+
 
   //OBTIENE LOS PRODUCTOS DE UNA PROMOCION QUE FUE ELEGIDA CON DETERMINADA CANTIDAD
   Future<dynamic> getProductoDePromo(
@@ -518,9 +523,33 @@ class _InicioState extends State<Inicio> {
     }
   }
 
+Future<dynamic> lastUbi(clienteNRID) async {
+    print('---------------------------------');
+    print('300) LAST UBIC NR');
+    print('7.2) este es el api al que ingresa');
+    print(apiUrl + apiLastUbi + clienteNRID.toString());
+    var res = await http.get(
+        Uri.parse(apiUrl + apiLastUbi + clienteNRID.toString()),
+        headers: {"Content-type": "application/json"});
+    try {
+      if (res.statusCode == 200) {
+        var data = json.decode(res.body);
+        setState(() {
+          lastUbic = data['id'];
+          print("dentroo de lastubic");
+          print(data['id']);
+        });
+      }
+    } catch (e) {
+      print('Error en la solicitud: $e');
+      throw Exception('Error en la solicitud: $e');
+    }
+  }
+  
+
   //CREA EL PEDIDO
   Future<dynamic> datosCreadoPedido(clienteNrId, fecha, montoTotal, descuento,
-      tipo, estado, observacionProd) async {
+      tipo, estado, observacionProd,ubicacion_id) async {
     print('---------------------------------');
     print('9) DATOS CREADO PEDIDO');
     if (tipo == 'express') {
@@ -537,6 +566,7 @@ class _InicioState extends State<Inicio> {
           "tipo": tipo,
           "estado": estado,
           "observacion": observacionProd,
+          "ubicacion_id":ubicacion_id
         }));
   }
 

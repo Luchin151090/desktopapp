@@ -5,18 +5,15 @@ import 'package:desktopapp/components/empleado/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:http/retry.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
-
 import 'package:windows_notification/windows_notification.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart' show rootBundle;
-
 import 'dart:convert';
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:lottie/lottie.dart' as lottie;
 
 // AGENDADOS
 class Pedido {
@@ -71,6 +68,7 @@ class Conductor {
   final String licencia;
   final String dni;
   final String fecha_nacimiento;
+  int? ruta;
   // List<Pedido>pedidos; // LISTA DE PEDIDOS
 
   bool seleccionado; // Nuevo campo para rastrear la selección
@@ -82,6 +80,7 @@ class Conductor {
       required this.licencia,
       required this.dni,
       required this.fecha_nacimiento,
+      required this.ruta,
       //  this.pedidos = const [],
       this.seleccionado = false});
 }
@@ -127,8 +126,9 @@ class _UpdateState extends State<Update> {
 
   late DateTime fechaparseadas;
 
-  String conductores = '/api/user_conductor';
+  String conductoresRuta = '/api/conductor_ruta';
   String pedidosConductor = '/api/conductorPedidos/';
+  String updatePedidoRuta = '/api/pedidoruta/';
 
   List<Conductor> obtenerConductor = [];
   int conductorid = 0;
@@ -136,6 +136,9 @@ class _UpdateState extends State<Update> {
   Map<Conductor, List<Pedido>> mapaConductorXPedido = {};
 
   List<Marker> marcadorAsignado = [];
+
+  // TEXTCONTROLLER
+  TextEditingController _ruta = TextEditingController();
 
   @override
   void initState() {
@@ -180,22 +183,22 @@ class _UpdateState extends State<Update> {
             (iterarPedido[i].latitud ?? 0.0) + (count * 0.003),
             (iterarPedido[i].longitud ?? 0.0) + (count * 0.002)));
         marcadorAsignado.add(Marker(
-            height: 80,
-            width: 80,
+            height: 70,
+            width: 70,
             point: puntosxconductor[i],
             child: Container(
               height: 70,
               width: 70,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.white,
-                  border: Border.all(
-                      width: 2,
-                      color: containerColors[k % containerColors.length])),
+                  borderRadius: BorderRadius.circular(50),
+                  color: iterarPedido[i].estado == 'en proceso'
+                      ? containerColors[k % containerColors.length]
+                      : Colors.grey,
+                  border: Border.all(width: 2.5, color: Colors.white)),
               child: Center(
                   child: Text(
                 "$count",
-                style: TextStyle(fontSize: 28),
+                style: TextStyle(fontSize: 28, color: Colors.white),
               )),
             )));
         count++;
@@ -227,8 +230,7 @@ class _UpdateState extends State<Update> {
           Marker(
             // LE AÑADO MAS TOLERANCIA PARA QUE SEA VISIBLE
 
-            point: LatLng(
-                coordenada.latitude + offset, coordenada.longitude + offset),
+            point: LatLng(coordenada.latitude, coordenada.longitude),
             width: 200,
             height: 200,
             child: GestureDetector(
@@ -462,6 +464,26 @@ class _UpdateState extends State<Update> {
     }
   }
 
+  Future<dynamic> updatePedido(int idpedido, int rutaid) async {
+    print("$idpedido");
+    print("$rutaid");
+    if (idpedido != 0) {
+      print("---------update");
+      print("$idpedido");
+      print("$rutaid");
+
+      try {
+        await http.put(Uri.parse(api + updatePedidoRuta + idpedido.toString()),
+            headers: {"Content-type": "application/json"},
+            body: jsonEncode({"ruta_id": rutaid, "estado": "en proceso"}));
+      } catch (e) {
+        throw Exception('$e');
+      }
+    } else {
+      print("$idpedido");
+    }
+  }
+
   void connectToServer() {
     print("-----CONEXIÓN------");
 
@@ -527,7 +549,7 @@ class _UpdateState extends State<Update> {
               print(fechaparseada.hour);
 
               /// SERA NECESARIO APLICAR LA LOGICA EN ESTA VISTA????????????????????????????
-              if (fechaparseada.hour < 13) {
+              if (fechaparseada.hour < 19) {
                 print('es antes de la 1');
                 hoypedidos.add(nuevoPedido);
 
@@ -645,7 +667,7 @@ class _UpdateState extends State<Update> {
 
   Future<dynamic> getConductores() async {
     try {
-      var res = await http.get(Uri.parse(api + conductores),
+      var res = await http.get(Uri.parse(api + conductoresRuta),
           headers: {"Content-type": "application/json"});
 
       if (res.statusCode == 200) {
@@ -657,7 +679,8 @@ class _UpdateState extends State<Update> {
               apellidos: data['apellidos'],
               licencia: data['licencia'],
               dni: data['dni'],
-              fecha_nacimiento: data['fecha_nacimiento']);
+              fecha_nacimiento: data['fecha_nacimiento'],
+              ruta: data['ruta']);
         }).toList();
         setState(() {
           conductorget = tempConductor;
@@ -713,7 +736,7 @@ class _UpdateState extends State<Update> {
               FlutterMap(
                 options: const MapOptions(
                   initialCenter: LatLng(-16.4055657, -71.5719081),
-                  initialZoom: 13.2,
+                  initialZoom: 14.0,
                 ),
                 children: [
                   TileLayer(
@@ -738,7 +761,7 @@ class _UpdateState extends State<Update> {
                 child: Container(
                     margin: const EdgeInsets.only(right: 20),
                     width: MediaQuery.of(context).size.width / 5,
-                    height: MediaQuery.of(context).size.height/1.75,
+                    height: MediaQuery.of(context).size.height / 1.75,
                     //color: Colors.amber,
                     child: ListView.builder(
                         itemCount: conductorget.length,
@@ -750,55 +773,23 @@ class _UpdateState extends State<Update> {
                               padding: const EdgeInsets.all(5),
                               height: 350,
                               decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.9),
+                                  color: Color.fromARGB(255, 168, 222, 110)
+                                      .withOpacity(0.9),
                                   borderRadius: BorderRadius.circular(20)),
                               child: Column(
                                 children: [
-                                  ListTile(
-                                    trailing: Checkbox(
-                                      value: conductorget[index1].seleccionado,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          conductorget[index1].seleccionado =
-                                              value ?? false;
-                                          obtenerConductor = conductorget
-                                              .where((element) =>
-                                                  element.seleccionado)
-                                              .toList();
-                                          if (value == true) {
-                                            setState(() {
-                                              conductorid =
-                                                  conductorget[index1].id;
-                                            });
-                                            print("conductor id ");
-                                            print(conductorid);
-                                          }
-                                        });
-                                      },
-                                    ),
-                                    title: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Conductor : N° ${conductorget[index1].id}",
-                                          style: TextStyle(
-                                              color: containerColors[index1 %
+                                  Container(
+                                    child: Text(
+                                        "Conductor N° ${conductorget[index1].id}",style: TextStyle(
+                                          color: containerColors[index1 %
                                                   containerColors.length],
-
-                                              /// containerColors[index % containerColors.length],
-                                              fontSize: 19,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          "Nombre:${conductorget[index1].nombres}",
-                                          style: TextStyle(
-                                              fontSize: 19,
-                                              fontWeight: FontWeight.w400),
-                                        ),
-                                      ],
-                                    ),
+                                        ),),
                                   ),
+                                  Container(
+                                    child: Text(
+                                        "Ruta N° ${conductorget[index1].ruta}"),
+                                  ),
+                                 
                                   Container(
                                     padding: const EdgeInsets.all(5),
                                     height: 230,
@@ -812,25 +803,36 @@ class _UpdateState extends State<Update> {
                                           return Container(
                                             margin:
                                                 const EdgeInsets.only(top: 3),
-                                            padding: const EdgeInsets.all(5),
+                                            padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(20)
-                                            ),
+                                                color: const Color.fromARGB(
+                                                    255, 67, 77, 129),
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
                                             child: Column(
-                                             
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                    "Pedido N° ${mapaConductorXPedido[conductorget[index1]]?[index2].id}"),
+                                                  "Pedido N° ${mapaConductorXPedido[conductorget[index1]]?[index2].id}",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
                                                 Text(
-                                                    "Estado:  ${mapaConductorXPedido[conductorget[index1]]?[index2].estado}"),
+                                                    "Estado: ${mapaConductorXPedido[conductorget[index1]]?[index2].estado}",
+                                                    style: TextStyle(
+                                                        color: Colors.white)),
                                                 Column(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
                                                   children: [
-                                                    Text("Nombre: ${mapaConductorXPedido[conductorget[index1]]?[index2].nombre}"),
+                                                    Text(
+                                                        "Nombre: ${mapaConductorXPedido[conductorget[index1]]?[index2].nombre}",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white)),
                                                   ],
                                                 )
-                                              
                                               ],
                                             ),
                                           );
@@ -841,6 +843,12 @@ class _UpdateState extends State<Update> {
                               );
                         })),
               ),
+
+
+
+              
+
+             
               // EXPRESS
               Positioned(
                 right: 10,
@@ -849,7 +857,7 @@ class _UpdateState extends State<Update> {
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                   // color: Colors.grey
+                    // color: Colors.grey
                   ),
                   // color: Color.fromARGB(255, 221, 214, 214),
                   // height: 180,
@@ -1095,6 +1103,73 @@ class _UpdateState extends State<Update> {
                   ),
                 ),
               ),
+
+              Positioned(
+                top: 100,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  height: 280,
+                  width: 200,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                          width: 180,
+                          height: 30,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white),
+                          child: Center(child: Text("Asignar Ruta"))),
+                      Container(
+                        height: 70,
+                        width: 50,
+                        margin: const EdgeInsets.only(top: 30),
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: TextField(
+                          controller: _ruta,
+                          showCursor: false,
+                          style: TextStyle(fontSize: 60),
+                        ),
+                      ),
+                      Container(
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              print("...ruteandoo....");
+                              if (_ruta.text.isNotEmpty &&
+                                  pedidoSeleccionado.isNotEmpty) {
+                                for (var i = 0;
+                                    i < pedidoSeleccionado.length;
+                                    i++) {
+                                  setState(() {
+                                    print(int.parse(_ruta.text));
+                                    print("id pedido");
+                                    print(pedidoSeleccionado[i].id);
+                                    pedidoSeleccionado[i].ruta_id =
+                                        int.parse(_ruta.text);
+                                  });
+                                  await updatePedido(pedidoSeleccionado[i].id,
+                                      int.parse(_ruta.text));
+                                }
+                              }
+
+                              setState(() {
+                                // ACTUALIZAMOS LA VISTA
+                                pedidoSeleccionado = [];
+                              });
+                            },
+                            child: Icon(Icons.check)),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
