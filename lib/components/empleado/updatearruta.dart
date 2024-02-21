@@ -266,12 +266,12 @@ class _UpdateState extends State<Update> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             color: Colors.white,
-                            border: Border.all(width: 3, color: Colors.black)),
+                            border: Border.all(width: 3, color: const Color.fromARGB(255, 19, 72, 115))),
                         child: Center(
                             child: Text(
                           "${count}",
                           style: const TextStyle(
-                              fontSize: 15,
+                              fontSize: 19,
                               color: Colors.black,
                               fontWeight: FontWeight.w600),
                         )),
@@ -282,7 +282,7 @@ class _UpdateState extends State<Update> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
-                                image: AssetImage('lib/imagenes/azul.png'))),
+                                image: AssetImage('lib/imagenes/bluefinal.png'))),
                       ),
                     ],
                   ) /*Icon(Icons.location_on_outlined,
@@ -340,14 +340,14 @@ class _UpdateState extends State<Update> {
                           padding: const EdgeInsets.all(0),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50),
-                              color: Colors.white,
+                              color: Colors.white.withOpacity(0.5),
                               border:
-                                  Border.all(width: 3, color: Colors.black)),
+                                  Border.all(width: 3, color: const Color.fromARGB(255, 116, 92, 23))),
                           child: Center(
                               child: Text(
                             "${count}",
                             style: const TextStyle(
-                                fontSize: 15,
+                                fontSize: 20,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600),
                           )),
@@ -358,7 +358,7 @@ class _UpdateState extends State<Update> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               image: const DecorationImage(
-                                  image: AssetImage('lib/imagenes/amber.png'))),
+                                  image: AssetImage('lib/imagenes/amberfinal.png'))),
                         ),
                       ],
                     ) /*Icon(Icons.location_on_outlined,
@@ -768,7 +768,8 @@ class _UpdateState extends State<Update> {
                     padding: const EdgeInsets.all(8),
                     margin: const EdgeInsets.only(right: 20),
                     width: MediaQuery.of(context).size.width / 8,
-                    height: MediaQuery.of(context).size.height / 1.1,
+                    height: MediaQuery.of(context).size.height > 793 ? 700 :
+                      MediaQuery.of(context).size.height<= 793  ? 500 : 0,
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20)),
@@ -904,6 +905,7 @@ class _UpdateState extends State<Update> {
                   width: MediaQuery.of(context).size.width / 2.05,
                   child: Column(
                     children: [
+                     
                       Center(
                         child: Container(
                             padding: const EdgeInsets.all(8),

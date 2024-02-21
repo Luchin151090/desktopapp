@@ -352,12 +352,12 @@ class _Armado2State extends State<Armado2> {
                               borderRadius: BorderRadius.circular(50),
                               color: Colors.white.withOpacity(0.5),
                               border:
-                                  Border.all(width: 1, color: Colors.black)),
+                                  Border.all(width: 1, color: const Color.fromARGB(255, 12, 112, 16))),
                           child: Center(
                               child: Text(
                             "${count}",
                             style: const TextStyle(
-                                fontSize: 15,
+                                fontSize: 19,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600),
                           )),
@@ -372,7 +372,7 @@ class _Armado2State extends State<Armado2> {
                               borderRadius: BorderRadius.circular(20),
                               image: const DecorationImage(
                                   image:
-                                      AssetImage('lib/imagenes/celeste.png'))),
+                                      AssetImage('lib/imagenes/greenfinal.png'))),
                         ),
                       ],
                     ) /*Icon(Icons.location_on_outlined,
@@ -485,14 +485,27 @@ class _Armado2State extends State<Armado2> {
     });
 
     socket.on('nuevoPedido', (data) async {
-      String imagePath = await getImageBytes('lib/imagenes/azul.png');
+      if(data['tipo']=='express'){
+        String imagePath = await getImageBytes('lib/imagenes/amberfinal.png');
       NotificationMessage message = NotificationMessage.fromPluginTemplate(
         "Pedido",
         " Llegó un pedido !",
         "${data['tipo']}",
-        image: imagePath,
+        largeImage: imagePath,
       );
       _winNotifyPlugin.showNotificationPluginTemplate(message);
+      }
+      else{
+        String imagePath = await getImageBytes('lib/imagenes/bluefinal.png');
+      NotificationMessage message = NotificationMessage.fromPluginTemplate(
+        "Pedido",
+        " Llegó un pedido !",
+        "${data['tipo']}",
+        largeImage: imagePath,
+      );
+      _winNotifyPlugin.showNotificationPluginTemplate(message);
+      }
+      
     });
     // CREATE PEDIDO WS://API/PRODUCTS
     /* socket.on('nuevoPedido', (data) {
