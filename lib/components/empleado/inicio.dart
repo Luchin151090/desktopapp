@@ -593,7 +593,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
     final alto = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 191, 195, 199),
+      //backgroundColor: Color.fromARGB(255, 191, 195, 199),
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -769,7 +769,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                               margin: const EdgeInsets.only(bottom: 0),
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                  color: Colors.grey,
+                                  color: Color.fromARGB(255, 241, 241, 241),
                                   borderRadius: BorderRadius.circular(20)),
                               child: Form(
                                   key: _formKey,
@@ -1946,7 +1946,8 @@ Future<dynamic> lastUbi(clienteNRID) async {
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: Colors.grey),
+                              color: const Color.fromARGB(255, 226, 76, 126) 
+                              ),
                           child: Center(
                             child: DropdownButton<String>(
                               value: tipo,

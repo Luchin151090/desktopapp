@@ -1,15 +1,21 @@
+import 'dart:io';
+
 import 'package:desktopapp/components/empleado/inicio.dart';
 import 'package:desktopapp/components/empleado/updatearruta.dart';
 import 'package:desktopapp/components/provider/ruta_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:provider/provider.dart';
 import 'package:desktopapp/components/provider/user_provider.dart';
+import 'package:windows_notification/notification_message.dart';
+import 'package:windows_notification/windows_notification.dart';
 
 // AGENDADOS
 class Pedido {
@@ -175,6 +181,10 @@ class _Armado2State extends State<Armado2> {
   List<Marker> normalmarker = [];
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
+  final _winNotifyPlugin = WindowsNotification(
+    applicationId:
+        r"{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\WindowsPowerShell\v1.0\powershell.exe",
+  );
   Map<LatLng, Color> coloreSeleccionados = {};
 
   void initState() {
@@ -183,6 +193,16 @@ class _Armado2State extends State<Armado2> {
     getPedidos();
     getConductores();
     // marcadoresPut();
+  }
+
+  Future<String> getImageBytes(String assetPath) async {
+    final supportDir = await getApplicationSupportDirectory();
+    final bytes = await rootBundle.load(assetPath);
+    final imageFile =
+        File("${supportDir.path}/${DateTime.now().millisecond}.png");
+    await imageFile.create();
+    await imageFile.writeAsBytes(bytes.buffer.asUint8List());
+    return imageFile.path;
   }
 
   Future<dynamic> refresh() async {
@@ -289,7 +309,7 @@ class _Armado2State extends State<Armado2> {
 
       final Map<LatLng, Pedido> mapaLatPedido = {};
 
-      for (var i = 0;i<puntosget.length;i++) {
+      for (var i = 0; i < puntosget.length; i++) {
         print("---||||||||||||||||||||---");
         print(puntosget[i].latitude);
         print(puntosget[i].longitude);
@@ -297,39 +317,42 @@ class _Armado2State extends State<Armado2> {
         LatLng coordenada = puntosget[i];
         Pedido pedido = agendados[i];
 
-        mapaLatPedido[LatLng(coordenada.latitude,coordenada.longitude)] =pedido;
-
+        mapaLatPedido[LatLng(coordenada.latitude, coordenada.longitude)] =
+            pedido;
 
         setState(() {
           marcadores.add(
             Marker(
-              point: LatLng(coordenada.latitude + offset,
-                  coordenada.longitude + offset),
-              width: 55,
-              height: 80,
+              point: LatLng(
+                  coordenada.latitude + offset, coordenada.longitude + offset),
+              width: 140,
+              height: 150,
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    mapaLatPedido[LatLng(coordenada.latitude,coordenada.longitude)]?.estado = 'en proceso';
-                    Pedido? pedidoencontrado = mapaLatPedido[LatLng(coordenada.latitude,coordenada.longitude)];
+                    mapaLatPedido[
+                            LatLng(coordenada.latitude, coordenada.longitude)]
+                        ?.estado = 'en proceso';
+                    Pedido? pedidoencontrado = mapaLatPedido[
+                        LatLng(coordenada.latitude, coordenada.longitude)];
                     pedidoSeleccionado.add(pedidoencontrado!);
                   });
                 },
                 child: Container(
-                    height: 60,
-                    width: 60,
-                    // color: Colors.grey,
+                    height: 155,
+                    width: 140,
+                    //color: Colors.grey,
                     child: Column(
                       children: [
                         Container(
-                          height: 30,
-                          width: 30,
+                          height: 50,
+                          width: 50,
                           padding: const EdgeInsets.all(0),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50),
-                              color: Colors.white,
+                              color: Colors.white.withOpacity(0.5),
                               border:
-                                  Border.all(width: 3, color: Colors.black)),
+                                  Border.all(width: 1, color: Colors.black)),
                           child: Center(
                               child: Text(
                             "${count}",
@@ -341,15 +364,15 @@ class _Armado2State extends State<Armado2> {
                         ),
                         Container(
                           //margin: const EdgeInsets.only(right: 20),
-                          width: 50,
-                          height: 50,
+                          width: 94,
+                          height: 94,
                           // color:Colors.blueGrey,
                           decoration: BoxDecoration(
                               // color: Colors.black,
                               borderRadius: BorderRadius.circular(20),
                               image: const DecorationImage(
                                   image:
-                                      AssetImage('lib/imagenes/location.png'))),
+                                      AssetImage('lib/imagenes/celeste.png'))),
                         ),
                       ],
                     ) /*Icon(Icons.location_on_outlined,
@@ -388,29 +411,24 @@ class _Armado2State extends State<Armado2> {
         }).toList();
 
         setState(() {
-
           pedidosget = tempPedido;
 
           int count = 1;
           for (var i = 0; i < pedidosget.length; i++) {
             fechaparseadas = DateTime.parse(pedidosget[i].fecha.toString());
             if (pedidosget[i].estado == 'pendiente') {
-                print("pendi...");
+              print("pendi...");
               if (pedidosget[i].tipo == 'normal') {
-
                 print("normlllll");
                 // SI ES NORMAL
-                if (
-                    
-                    fechaparseadas.day != now.day) {
-                 print("no es hoy");
-                 print(fechaparseadas.day);
-                
+                if (fechaparseadas.day != now.day) {
+                  print("no es hoy");
+                  print(fechaparseadas.day);
+
                   setState(() {
-                    
                     LatLng coordGET = LatLng(
                         (pedidosget[i].latitud ?? 0.0) + (0.000001 * count),
-                       ( pedidosget[i].longitud ?? 0.0 )+ (0.000001 * count));
+                        (pedidosget[i].longitud ?? 0.0) + (0.000001 * count));
 
                     puntosget.add(coordGET);
                     pedidosget[i].latitud = coordGET.latitude;
@@ -419,9 +437,7 @@ class _Armado2State extends State<Armado2> {
                     print("--get posss");
                     print(coordGET);
                     agendados.add(pedidosget[i]);
-
                   });
-
                 }
               } else if (pedidosget[i].tipo == 'express') {
                 hoyexpress.add(pedidosget[i]);
@@ -468,6 +484,16 @@ class _Armado2State extends State<Armado2> {
       print('Conexión desconectada: EMPLEADO');
     });
 
+    socket.on('nuevoPedido', (data) async {
+      String imagePath = await getImageBytes('lib/imagenes/azul.png');
+      NotificationMessage message = NotificationMessage.fromPluginTemplate(
+        "Pedido",
+        " Llegó un pedido !",
+        "${data['tipo']}",
+        image: imagePath,
+      );
+      _winNotifyPlugin.showNotificationPluginTemplate(message);
+    });
     // CREATE PEDIDO WS://API/PRODUCTS
     /* socket.on('nuevoPedido', (data) {
       print('Nuevo Pedido: $data');
@@ -644,7 +670,7 @@ class _Armado2State extends State<Armado2> {
 
               // AGENDADOS
               Positioned(
-                top: MediaQuery.of(context).size.height / 8,
+                top: MediaQuery.of(context).size.height / 9,
                 left: 10,
                 child: Container(
                   padding: const EdgeInsets.all(15),
@@ -652,7 +678,7 @@ class _Armado2State extends State<Armado2> {
                   height: MediaQuery.of(context).size.height / 1.2,
                   decoration: BoxDecoration(
                       //  color: Colors.white.withOpacity(0.7),
-                      color: Colors.grey.withOpacity(0.8),
+                      color: Colors.white.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(20)),
                   child: Column(
                     children: [
@@ -670,7 +696,7 @@ class _Armado2State extends State<Armado2> {
                       ),
                       Container(
                         width: 300,
-                        height: 500,
+                        height: MediaQuery.of(context).size.height / 1.3,
                         //color: Colors.grey,
                         child: ListView.builder(
                             key: _listKey,
@@ -679,12 +705,11 @@ class _Armado2State extends State<Armado2> {
                               return Container(
                                 margin: const EdgeInsets.only(top: 10),
                                 padding: const EdgeInsets.all(6),
-                                height: 120,
+                                height: 180,
                                 decoration: BoxDecoration(
                                     color:
                                         agendados[index].estado == 'pendiente'
-                                            ? Color.fromARGB(255, 120, 121, 124)
-                                                .withOpacity(0.4)
+                                            ? Color.fromARGB(255, 58, 108, 149)
                                             : Color.fromARGB(255, 12, 46, 14)
                                                 .withOpacity(0.4),
                                     borderRadius: BorderRadius.circular(20)),
@@ -693,42 +718,43 @@ class _Armado2State extends State<Armado2> {
                                   children: [
                                     Text("Pedido : N° ${agendados[index].id}",
                                         style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold)),
-                                    Text(
-                                      "Ruta N°: ${agendados[index].ruta_id}",
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold),
-                                    ),
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal)),
                                     Text("Cliente: ${agendados[index].nombre}",
                                         style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)),
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal)),
                                     Text(
                                         "Telefono:${agendados[index].telefono}",
                                         style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)),
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.normal)),
                                     Text("Monto: S/.${agendados[index].total}",
                                         style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 15,
+                                          color: Colors.white,
                                         )),
                                     Text("Fecha: ${agendados[index].fecha}",
-                                        style: TextStyle(fontSize: 10)),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                        )),
                                     Text(
                                       "Estado: ${agendados[index].estado}",
                                       style: TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 15,
                                           color: agendados[index].estado ==
                                                   'pendiente'
                                               ? Color.fromARGB(
-                                                  255, 244, 54, 108)
+                                                  255, 186, 115, 135)
                                               : agendados[index].estado ==
                                                       'en proceso'
                                                   ? Colors.amber
                                                   : Colors.black,
-                                          fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.w700),
                                     )
                                   ],
                                 ),
@@ -756,7 +782,7 @@ class _Armado2State extends State<Armado2> {
                     },
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 1, 33, 60)
+                            const Color.fromARGB(255, 58, 108, 149)
                                 .withOpacity(0.8))),
                     child: const Text(
                       "<< Sistema de Pedido",
@@ -782,7 +808,8 @@ class _Armado2State extends State<Armado2> {
                     },
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                            Color.fromARGB(255, 1, 33, 60).withOpacity(0.8))),
+                            const Color.fromARGB(255, 58, 108, 149)
+                                .withOpacity(0.8))),
                     child: const Text(
                       "Sistema de Supervisión >>",
                       style: TextStyle(color: Colors.white),
@@ -1030,31 +1057,34 @@ class _Armado2State extends State<Armado2> {
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   width: 190,
-                  //height: 550,
+                  height: MediaQuery.of(context).size.height / 1.2,
                   decoration: BoxDecoration(
-                      //color: Colors.white,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(20)),
                   child: Column(
                     children: [
                       Text(
-                        "Conductores:${conductorget.length}",
+                        "Conductores: ${conductorget.length}",
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 30, 63, 91),
+                            fontWeight: FontWeight.w500),
                       ),
                       Container(
-                        width: 190,
+                        width: 195,
                         height: 500,
                         child: ListView.builder(
                             itemCount: conductorget.length,
                             itemBuilder: ((context, index) {
                               return Container(
                                   margin: const EdgeInsets.only(top: 10),
-                                  height: 60,
+                                  height: 100,
                                   decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.65),
+                                      color: Color.fromARGB(255, 58, 108, 149),
                                       borderRadius: BorderRadius.circular(20)),
                                   child: ListTile(
                                     trailing: Checkbox(
+                                      checkColor: Colors.white,
                                       value: conductorget[index].seleccionado,
                                       onChanged: (value) {
                                         setState(() {
@@ -1083,13 +1113,15 @@ class _Armado2State extends State<Armado2> {
                                           "Conductor : N° ${conductorget[index].id}",
                                           style: TextStyle(
                                               fontSize: 11,
-                                              fontWeight: FontWeight.bold),
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.normal),
                                         ),
                                         Text(
-                                          "Nombre:${conductorget[index].nombres}",
+                                          "Nombre: ${conductorget[index].nombres}",
                                           style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold),
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.normal),
                                         ),
                                       ],
                                     ),
@@ -1111,9 +1143,8 @@ class _Armado2State extends State<Armado2> {
                   padding: const EdgeInsets.all(5),
 
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    // color: Colors.green
-                  ),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white),
                   // color: Color.fromARGB(255, 221, 214, 214),
 
                   child: Column(
@@ -1122,13 +1153,13 @@ class _Armado2State extends State<Armado2> {
                         child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.8),
+                                color: Colors.amber.withOpacity(0.8),
                                 borderRadius: BorderRadius.circular(20)),
                             child: Text(
                               "Seleccionados: ${pedidoSeleccionado.length}",
                               style: TextStyle(
                                   fontSize: 15,
-                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  color: Color.fromARGB(255, 255, 255, 255),
                                   fontWeight: FontWeight.w500),
                             )),
                       ),
@@ -1153,7 +1184,8 @@ class _Armado2State extends State<Armado2> {
                                 child: Card(
                                   elevation: 8,
                                   borderOnForeground: true,
-                                  color: Colors.grey.withOpacity(0.8),
+                                  color: const Color.fromARGB(255, 58, 108, 149)
+                                      .withOpacity(0.8),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
@@ -1164,13 +1196,15 @@ class _Armado2State extends State<Armado2> {
                                           "Pedido : N° ${pedidoSeleccionado[index].id}",
                                           style: TextStyle(
                                               fontSize: 12,
-                                              fontWeight: FontWeight.bold),
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w300),
                                         ),
                                         Text(
                                             "Ruta: ${pedidoSeleccionado[index].ruta_id}",
                                             style: TextStyle(
                                                 fontSize: 12,
-                                                fontWeight: FontWeight.bold))
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w300))
                                       ],
                                     ),
                                   ),
@@ -1183,12 +1217,17 @@ class _Armado2State extends State<Armado2> {
                       ElevatedButton(
                           onPressed: () {
                             setState(() {
+                              for (var i = 0;
+                                  i < pedidoSeleccionado.length;
+                                  i++) {
+                                pedidoSeleccionado[i].estado = 'pendiente';
+                              }
                               pedidoSeleccionado = [];
                             });
                           },
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all(
-                                  const Color.fromARGB(255, 0, 35, 64)
+                                  Color.fromARGB(255, 58, 108, 149)
                                       .withOpacity(0.8))),
                           child: Text(
                             "Deshacer",
@@ -1236,68 +1275,103 @@ class _Armado2State extends State<Armado2> {
                             showDialog<String>(
                               context: context,
                               builder: (BuildContext context) => AlertDialog(
-                                title: const Text('Crear Ruta - Conductor'),
-                                content: const Text('¿Crear?'),
-                                actions: <Widget>[
-                                  // CANCELAR
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        pedidoSeleccionado = [];
-                                        obtenerConductor = [];
-                                      });
-                                      Navigator.pop(context, 'CANCELAR');
-                                    },
-                                    child: const Text('Cancelar'),
-                                  ),
-
-                                  // CONFIRMAR
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      // Muestra el indicador de progreso
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return Center(
-                                            child: CircularProgressIndicator(),
-                                          );
+                                title:
+                                    Center(child: const Text('¿ Crear ruta ?')),
+                                actions: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // CANCELAR
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            for (var i = 0;
+                                                i < pedidoSeleccionado.length;
+                                                i++) {
+                                              pedidoSeleccionado[i].estado =
+                                                  'pendiente';
+                                            }
+                                            for (var i = 0;
+                                                i < obtenerConductor.length;
+                                                i++) {
+                                              obtenerConductor[i].seleccionado =
+                                                  false;
+                                            }
+                                            pedidoSeleccionado = [];
+                                            obtenerConductor = [];
+                                          });
+                                          Navigator.pop(context, 'CANCELAR');
                                         },
-                                      );
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.amber)),
+                                        child: const Text(
+                                          'Cancelar',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
 
-                                      print(obtenerConductor);
-                                      await crearobtenerYactualizarRuta(
-                                        userProvider.user?.id,
-                                        conductorid,
-                                        0,
-                                        0,
-                                        "en proceso",
-                                      );
+                                      // CONFIRMAR
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          // Muestra el indicador de progreso
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            },
+                                          );
 
-                                      for (var i = 0;
-                                          i < obtenerConductor.length;
-                                          i++) {
-                                        setState(() {
-                                          obtenerConductor[i].seleccionado =
-                                              false;
-                                        });
-                                      }
+                                          print(obtenerConductor);
+                                          await crearobtenerYactualizarRuta(
+                                            userProvider.user?.id,
+                                            conductorid,
+                                            0,
+                                            0,
+                                            "en proceso",
+                                          );
 
-                                      // Limpiar y ocultar el indicador de progreso
-                                      Navigator.pop(context);
-                                      setState(() {
-                                        pedidoSeleccionado = [];
-                                        obtenerConductor = [];
-                                      });
+                                          for (var i = 0;
+                                              i < obtenerConductor.length;
+                                              i++) {
+                                            setState(() {
+                                              obtenerConductor[i].seleccionado =
+                                                  false;
+                                            });
+                                          }
 
-                                      // Actualizar la interfaz de usuario
-                                      _listKey.currentState?.setState(() {});
+                                          // Limpiar y ocultar el indicador de progreso
+                                          Navigator.pop(context);
+                                          setState(() {
+                                            pedidoSeleccionado = [];
+                                            obtenerConductor = [];
+                                          });
 
-                                      Navigator.pop(context, 'CONFIRMAR');
-                                      setState(() {});
-                                    },
-                                    child: const Text('SI'),
-                                  ),
+                                          // Actualizar la interfaz de usuario
+                                          _listKey.currentState
+                                              ?.setState(() {});
+
+                                          Navigator.pop(context, 'CONFIRMAR');
+                                          setState(() {});
+                                        },
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                                    Color.fromARGB(
+                                                        255, 58, 108, 149))),
+                                        child: const Text(
+                                          'Crear',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                             );
@@ -1309,7 +1383,8 @@ class _Armado2State extends State<Armado2> {
                     ),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
-                        const Color.fromARGB(255, 1, 40, 72).withOpacity(0.8),
+                        const Color.fromARGB(255, 58, 108, 149)
+                            .withOpacity(0.7),
                       ),
                     ),
                   ),
