@@ -1,6 +1,3 @@
-import 'dart:math';
-import 'dart:typed_data';
-
 import 'package:desktopapp/components/empleado/armadodo2.dart';
 import 'package:desktopapp/components/empleado/colores.dart';
 import 'package:flutter/material.dart';
@@ -163,23 +160,22 @@ class _UpdateState extends State<Update> {
   void getPedidosXConductor() async {
     print("-------gettt----------");
     print(conductorget.length);
-    List<LatLng> puntosxconductor = [];
+
     List<Pedido> iterarPedido = [];
-    for (var i = 0; i < conductorget.length; i++) {
-      List<Pedido> pedidostemp =
-          await obtenerPedidosPorConductor(conductorget[i].id);
-      setState(() {
-        mapaConductorXPedido[conductorget[i]] = pedidostemp;
-        iterarPedido = pedidostemp;
-      });
-
-      print(mapaConductorXPedido[conductorget[i]]);
-
-      // mostrar el conjunto de asignados x conductor
-    }
 
     for (var k = 0; k < conductorget.length; k++) {
+      List<Pedido> pedidostemp =
+          await obtenerPedidosPorConductor(conductorget[k].id);
+      print('pedido por conductor $k');
+      print(pedidostemp[k].estado);
+      print("---------");
+      setState(() {
+        mapaConductorXPedido[conductorget[k]] = pedidostemp;
+        iterarPedido = pedidostemp;
+      });
+      List<LatLng> puntosxconductor = [];
       int count = 1;
+      print(mapaConductorXPedido[conductorget[k]]);
       for (var i = 0; i < iterarPedido.length; i++) {
         puntosxconductor.add(LatLng(
             (iterarPedido[i].latitud ?? 0.0) + (count * 0.003),
@@ -196,9 +192,9 @@ class _UpdateState extends State<Update> {
                   color: iterarPedido[i].estado == 'en proceso'
                       ? containerColors[k % containerColors.length]
                       : iterarPedido[i].estado == 'entregado'
-                          ? Colors.grey
+                          ? Colors.grey.withOpacity(0.8)
                           : iterarPedido[i].estado == 'truncado'
-                              ? Colors.red
+                              ? Colors.red.withOpacity(0.75)
                               : Colors.black,
                   border: Border.all(width: 2.5, color: Colors.white)),
               child: Center(
@@ -209,6 +205,13 @@ class _UpdateState extends State<Update> {
             )));
         count++;
       }
+      setState(() {
+        // Actualiza el estado con las listas de marcadores para el conductor actual.
+        //marcadorAsignado = [];
+        //puntosxconductor = [];
+      });
+
+      // mostrar el conjunto de asignados x conductor
     }
   }
 
@@ -266,7 +269,9 @@ class _UpdateState extends State<Update> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(50),
                             color: Colors.white,
-                            border: Border.all(width: 3, color: const Color.fromARGB(255, 19, 72, 115))),
+                            border: Border.all(
+                                width: 3,
+                                color: const Color.fromARGB(255, 19, 72, 115))),
                         child: Center(
                             child: Text(
                           "${count}",
@@ -282,7 +287,8 @@ class _UpdateState extends State<Update> {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: DecorationImage(
-                                image: AssetImage('lib/imagenes/bluefinal.png'))),
+                                image:
+                                    AssetImage('lib/imagenes/bluefinal.png'))),
                       ),
                     ],
                   ) /*Icon(Icons.location_on_outlined,
@@ -341,8 +347,10 @@ class _UpdateState extends State<Update> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(50),
                               color: Colors.white.withOpacity(0.5),
-                              border:
-                                  Border.all(width: 3, color: const Color.fromARGB(255, 116, 92, 23))),
+                              border: Border.all(
+                                  width: 3,
+                                  color:
+                                      const Color.fromARGB(255, 116, 92, 23))),
                           child: Center(
                               child: Text(
                             "${count}",
@@ -358,7 +366,8 @@ class _UpdateState extends State<Update> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
                               image: const DecorationImage(
-                                  image: AssetImage('lib/imagenes/amberfinal.png'))),
+                                  image: AssetImage(
+                                      'lib/imagenes/amberfinal.png'))),
                         ),
                       ],
                     ) /*Icon(Icons.location_on_outlined,
@@ -656,11 +665,6 @@ class _UpdateState extends State<Update> {
     });
   }
 
-  final _winNotifyPlugin = WindowsNotification(
-    applicationId:
-        r"{D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27}\WindowsPowerShell\v1.0\powershell.exe",
-  );
-
   Future<String> getImageBytes(String assetPath) async {
     final supportDir = await getApplicationSupportDirectory();
     final bytes = await rootBundle.load(assetPath);
@@ -768,8 +772,11 @@ class _UpdateState extends State<Update> {
                     padding: const EdgeInsets.all(8),
                     margin: const EdgeInsets.only(right: 20),
                     width: MediaQuery.of(context).size.width / 8,
-                    height: MediaQuery.of(context).size.height > 793 ? 700 :
-                      MediaQuery.of(context).size.height<= 793  ? 500 : 0,
+                    height: MediaQuery.of(context).size.height > 793
+                        ? 700
+                        : MediaQuery.of(context).size.height <= 793
+                            ? 500
+                            : 0,
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20)),
@@ -781,7 +788,7 @@ class _UpdateState extends State<Update> {
                           return Container(
                               margin: const EdgeInsets.only(top: 10, right: 20),
                               padding: const EdgeInsets.all(5),
-                              height: 500,
+                              height: 600,
                               decoration: BoxDecoration(
                                   color: Color.fromARGB(255, 58, 108, 149)
                                       .withOpacity(0.9),
@@ -792,26 +799,44 @@ class _UpdateState extends State<Update> {
                                     padding: const EdgeInsets.all(20),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
-                                        color: Colors.white),
+                                        color: containerColors[
+                                            index1 % containerColors.length]),
                                     child: Text(
                                       "Conductor N° ${conductorget[index1].id}",
                                       style: TextStyle(
-                                        fontSize: 20,
-                                        color: containerColors[
-                                            index1 % containerColors.length],
-                                      ),
+                                          fontSize: 20,
+                                          color: Colors
+                                              .white // containerColors[index1 % containerColors.length],
+                                          ),
                                     ),
                                   ),
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 5),
-                                    padding: const EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Colors.white),
-                                    child: Text(
-                                      "Ruta N° ${conductorget[index1].ruta}",
-                                      style: TextStyle(fontSize: 20),
-                                    ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 5),
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            color: Colors.white),
+                                        child: Text(
+                                          "Ruta N° ${conductorget[index1].ruta}",
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(top: 5),
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            color: Colors.white),
+                                        child: Text(
+                                          "Cantidad: ${mapaConductorXPedido[conductorget[index1]]?.length}",
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   Container(
                                     padding: const EdgeInsets.all(5),
@@ -897,15 +922,13 @@ class _UpdateState extends State<Update> {
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                     color: Colors.white
-                  ),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white),
                   // color: Color.fromARGB(255, 221, 214, 214),
                   // height: 180,
                   width: MediaQuery.of(context).size.width / 2.05,
                   child: Column(
                     children: [
-                     
                       Center(
                         child: Container(
                             padding: const EdgeInsets.all(8),
@@ -1011,9 +1034,8 @@ class _UpdateState extends State<Update> {
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.white
-                  ),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white),
                   // color: Color.fromARGB(255, 221, 214, 214),
                   //height: 180,
                   width: MediaQuery.of(context).size.width / 2.05,
@@ -1165,10 +1187,12 @@ class _UpdateState extends State<Update> {
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: Color.fromARGB(255, 58, 108, 149)
-                              ),
+                              color: Color.fromARGB(255, 34, 110, 172)),
                           child: Center(
-                            child: Text("Asignar Ruta",style: TextStyle(color: Colors.white,fontSize: 24),))),
+                              child: Text(
+                            "Asignar Ruta",
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ))),
                       Container(
                         height: 70,
                         width: 100,
@@ -1183,7 +1207,7 @@ class _UpdateState extends State<Update> {
                           style: TextStyle(fontSize: 40),
                         ),
                       ),
-                      Container(
+                      /*Container(
                         margin: const EdgeInsets.only(top: 10),
                         width: 100,
                         child: ElevatedButton(
@@ -1212,10 +1236,99 @@ class _UpdateState extends State<Update> {
                               });
                             },
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(Color.fromARGB(255, 58, 108, 149))
+                                backgroundColor: MaterialStateProperty.all(
+                                    Color.fromARGB(255, 58, 108, 149))),
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                            )),
+                      ),*/
+                      Container(
+                          margin: const EdgeInsets.only(top: 20),
+                          height: 50,
+                          width: 200,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                        title: const Text(
+                                            'Vas a añadir un pedido a una ruta'),
+                                        content: const Text('¿Estas segur@?'),
+                                        actions: <Widget>[
+                                          //CANCELAR
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              //pedidoCancelado();
+                                              setState(() {
+                                                _ruta.text = '';
+                                                pedidoSeleccionado = [];
+                                              });
+                                              Navigator.pop(
+                                                  context, 'Cancelar');
+                                            },
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Color.fromARGB(255, 34,
+                                                            110, 172))),
+                                            child: const Text(
+                                              'Cancelar',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                          // SI
+                                          ElevatedButton(
+                                            onPressed: _ruta.text.isNotEmpty &&
+                                                    pedidoSeleccionado
+                                                        .isNotEmpty
+                                                ? () async {
+                                                    for (var i = 0;
+                                                        i <
+                                                            pedidoSeleccionado
+                                                                .length;
+                                                        i++) {
+                                                      setState(() {
+                                                        print(int.parse(
+                                                            _ruta.text));
+                                                        print("id pedido");
+                                                        print(
+                                                            pedidoSeleccionado[
+                                                                    i]
+                                                                .id);
+                                                        pedidoSeleccionado[i]
+                                                                .ruta_id =
+                                                            int.parse(
+                                                                _ruta.text);
+                                                      });
+                                                      await updatePedido(
+                                                          pedidoSeleccionado[i]
+                                                              .id,
+                                                          int.parse(
+                                                              _ruta.text));
+                                                    }
+                                                    setState(() {
+                                                      // ACTUALIZAMOS LA VISTA
+                                                      pedidoSeleccionado = [];
+                                                    });
+                                                  }
+                                                : null,
+                                            child: const Text('SI'),
+                                          ),
+                                        ],
+                                      ));
+                            },
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.amber)),
+                            child: const Text(
+                              'Actualizar',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
                             ),
-                            child: Icon(Icons.check,color: Colors.white,)),
-                      ),
+                          )),
                     ],
                   ),
                 ),

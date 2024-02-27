@@ -1,4 +1,3 @@
-import 'package:desktopapp/components/empleado/armado.dart';
 import 'package:desktopapp/components/empleado/armadodo2.dart';
 import 'package:desktopapp/components/empleado/login1.dart';
 import 'dart:convert';
@@ -11,7 +10,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:desktopapp/components/provider/user_provider.dart';
-
 
 class Producto {
   final int id;
@@ -392,7 +390,8 @@ class _InicioState extends State<Inicio> {
         descuentoTotalPedido,
         tipo,
         "pendiente",
-        observacionFinal,lastUbic);
+        observacionFinal,
+        lastUbic);
 
     print("10) creando detalles de pedidos");
 
@@ -417,7 +416,6 @@ class _InicioState extends State<Inicio> {
 
     await pedidoCancelado();
   }
-
 
   //OBTIENE LOS PRODUCTOS DE UNA PROMOCION QUE FUE ELEGIDA CON DETERMINADA CANTIDAD
   Future<dynamic> getProductoDePromo(
@@ -523,7 +521,7 @@ class _InicioState extends State<Inicio> {
     }
   }
 
-Future<dynamic> lastUbi(clienteNRID) async {
+  Future<dynamic> lastUbi(clienteNRID) async {
     print('---------------------------------');
     print('300) LAST UBIC NR');
     print('7.2) este es el api al que ingresa');
@@ -545,11 +543,10 @@ Future<dynamic> lastUbi(clienteNRID) async {
       throw Exception('Error en la solicitud: $e');
     }
   }
-  
 
   //CREA EL PEDIDO
   Future<dynamic> datosCreadoPedido(clienteNrId, fecha, montoTotal, descuento,
-      tipo, estado, observacionProd,ubicacion_id) async {
+      tipo, estado, observacionProd, ubicacion_id) async {
     print('---------------------------------');
     print('9) DATOS CREADO PEDIDO');
     if (tipo == 'express') {
@@ -566,7 +563,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
           "tipo": tipo,
           "estado": estado,
           "observacion": observacionProd,
-          "ubicacion_id":ubicacion_id
+          "ubicacion_id": ubicacion_id
         }));
   }
 
@@ -581,7 +578,6 @@ Future<dynamic> lastUbi(clienteNRID) async {
   @override
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
-
 
     // Formato para obtener el nombre del mes
     final monthFormat = DateFormat('MMMM');
@@ -598,9 +594,11 @@ Future<dynamic> lastUbi(clienteNRID) async {
           child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          physics: MediaQuery.of(context).size.height <=1536 ?
-          const NeverScrollableScrollPhysics() : MediaQuery.of(context).size.height >1536
-            ? BouncingScrollPhysics() : null,
+          physics: MediaQuery.of(context).size.height <= 1536
+              ? const NeverScrollableScrollPhysics()
+              : MediaQuery.of(context).size.height > 1536
+                  ? BouncingScrollPhysics()
+                  : null,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -612,18 +610,17 @@ Future<dynamic> lastUbi(clienteNRID) async {
                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      //color:Colors.grey,
+                        //color:Colors.grey,
                         margin: const EdgeInsets.only(left: 20),
-                        child:  Column(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            
                             Text(
                               "Hola,${userProvider.user?.nombre}",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
-                           const Row(
+                            const Row(
                               children: [
                                 Text(
                                   "Bienvenid@ a ",
@@ -631,7 +628,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                 ),
                                 Text(
                                   "Agua Sol",
-                                  style: TextStyle( fontSize: 25),
+                                  style: TextStyle(fontSize: 25),
                                 )
                               ],
                             ),
@@ -647,35 +644,35 @@ Future<dynamic> lastUbi(clienteNRID) async {
                       // color:Colors.blueGrey,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          
                           image: const DecorationImage(
                               image: AssetImage('lib/imagenes/chica.jpg'))),
                     ),
-                     Container(
+                    Container(
                       margin: const EdgeInsets.only(left: 20),
                       //color: Colors.grey,
                       width: 150,
                       height: 50,
-                      child: ElevatedButton(onPressed: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Login1()));
-                      },
-                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all((Color.fromARGB(255, 0, 41, 75)))
-                       ),
-                       child:const Text("Cerrar Sesión",
-                       style: TextStyle(fontSize: 15,color: Colors.white),)),
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const Login1()));
+                          },
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                  (Color.fromARGB(255, 0, 41, 75)))),
+                          child: const Text(
+                            "Cerrar Sesión",
+                            style: TextStyle(fontSize: 15, color: Colors.white),
+                          )),
                     ),
-
                     const SizedBox(
                       width: 150,
                     ),
                     const SizedBox(
                       width: 150,
                     ),
-                   
                     Container(
                       margin: const EdgeInsets.only(top: 20),
                       child: Column(
@@ -715,13 +712,13 @@ Future<dynamic> lastUbi(clienteNRID) async {
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Armado2()));
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const Armado2()));
                         },
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 135, 83, 128))),
+                                const Color.fromARGB(255, 135, 83, 128))),
                         child: const Text("Sistema de Ruteo >>",
                             style: TextStyle(color: Colors.white)),
                       ),
@@ -1041,9 +1038,10 @@ Future<dynamic> lastUbi(clienteNRID) async {
                       children: [
                         Container(
                           height: MediaQuery.of(context).size.width > 1536
-                                                      ? 640
-                                                      : MediaQuery.of(context).size.width <= 1536 ?
-                                                      475 :0,
+                              ? 640
+                              : MediaQuery.of(context).size.width <= 1536
+                                  ? 475
+                                  : 0,
                           //color:Colors.yellow,
                           width: MediaQuery.of(context).size.width <= 1580
                               ? 420
@@ -1064,12 +1062,20 @@ Future<dynamic> lastUbi(clienteNRID) async {
                               Center(
                                 child: Container(
                                   padding: const EdgeInsets.all(10),
-                                  height: MediaQuery.of(context).size.width > 1536
-                                                        ? 590
-                                                        : MediaQuery.of(context).size.width <= 1536 ?
-                                                        420 :0,
-                                  width: MediaQuery.of(context).size.width <= 1930 ? 500
-                                   : MediaQuery.of(context).size.width <= 1536 ? 600 : 0,
+                                  height:
+                                      MediaQuery.of(context).size.width > 1536
+                                          ? 590
+                                          : MediaQuery.of(context).size.width <=
+                                                  1536
+                                              ? 420
+                                              : 0,
+                                  width:
+                                      MediaQuery.of(context).size.width <= 1930
+                                          ? 500
+                                          : MediaQuery.of(context).size.width <=
+                                                  1536
+                                              ? 600
+                                              : 0,
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(20),
                                       color: Color.fromARGB(255, 179, 59, 99)),
@@ -1082,9 +1088,9 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                         if (elementoActual is Producto) {
                                           // Producto
                                           Producto producto = elementoActual;
-                                
+
                                           // CONTENEDOR PRINCIPAL
-                                
+
                                           return Container(
                                             margin:
                                                 const EdgeInsets.only(top: 10),
@@ -1101,7 +1107,12 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                 // IMAGENES DE PRODUCTO
                                                 Container(
                                                   height: 150,
-                                                  width: MediaQuery.of(context).size.width <2220 ? 50: 80,
+                                                  width: MediaQuery.of(context)
+                                                              .size
+                                                              .width <
+                                                          2220
+                                                      ? 50
+                                                      : 80,
                                                   decoration: BoxDecoration(
                                                       // color: Colors.grey,
                                                       borderRadius:
@@ -1111,17 +1122,26 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                           image: NetworkImage(
                                                               producto.foto))),
                                                 ),
-                                
+
                                                 // DESCRIPCIÓN DE PRODUCTO
-                                
+
                                                 Container(
-                                                    margin: const EdgeInsets.only(
-                                                        left: 20),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            left: 20),
                                                     height: 180,
-                                                    width: MediaQuery.of(context).size.width > 1536
+                                                    width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width >
+                                                            1536
                                                         ? 200
-                                                        : MediaQuery.of(context).size.width <= 1536 ?
-                                                        120 :0,
+                                                        : MediaQuery.of(context)
+                                                                    .size
+                                                                    .width <=
+                                                                1536
+                                                            ? 120
+                                                            : 0,
                                                     decoration: BoxDecoration(
                                                       // color: Colors.grey,
                                                       borderRadius:
@@ -1132,35 +1152,39 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                       children: [
                                                         Text(
                                                           "Presentación:${producto.nombre}",
-                                                          style: const TextStyle(
-                                                              color:
-                                                                  Colors.white),
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
                                                         ),
                                                         Text(
                                                           "${producto.descripcion}",
-                                                          style: const TextStyle(
-                                                              fontSize: 20,
-                                                              color:
-                                                                  Colors.white),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 20,
+                                                                  color: Colors
+                                                                      .white),
                                                         ),
                                                         Text(
                                                           "Precio: S/.${producto.precio}",
-                                                          style: const TextStyle(
-                                                              fontSize: 24,
-                                                              fontWeight:
-                                                                  FontWeight.w600,
-                                                              color:
-                                                                  Color.fromARGB(
-                                                                      255,
-                                                                      100,
-                                                                      237,
-                                                                      105)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 24,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          100,
+                                                                          237,
+                                                                          105)),
                                                         ),
                                                       ],
                                                     )),
-                                
+
                                                 // ENTRADAS NUMÉRICAS
-                                
+
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.all(15),
@@ -1176,13 +1200,15 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey,
                                                     borderRadius:
-                                                        BorderRadius.circular(20),
+                                                        BorderRadius.circular(
+                                                            20),
                                                   ),
                                                   child: Column(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.start,
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.center,
+                                                        CrossAxisAlignment
+                                                            .center,
                                                     children: [
                                                       // CANTIDAD
                                                       TextFormField(
@@ -1194,8 +1220,8 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                 decimal: true),
                                                         inputFormatters: [
                                                           FilteringTextInputFormatter
-                                                              .allow(
-                                                                  RegExp(r'^\d+'))
+                                                              .allow(RegExp(
+                                                                  r'^\d+'))
                                                         ],
                                                         decoration:
                                                             InputDecoration(
@@ -1206,13 +1232,14 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                               223,
                                                               225,
                                                               226), // Cambia este color según tus preferencias
-                                
+
                                                           hintText: 'Cantidad',
                                                           border:
                                                               OutlineInputBorder(
                                                             borderRadius:
                                                                 BorderRadius
-                                                                    .circular(10),
+                                                                    .circular(
+                                                                        10),
                                                           ),
                                                           hintStyle:
                                                               const TextStyle(
@@ -1227,16 +1254,19 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                           listElementos[index]
                                                               .cantidad
                                                               .text = value;
-                                
-                                                          if (value.isNotEmpty) {
+
+                                                          if (value
+                                                              .isNotEmpty) {
                                                             print(
                                                                 'tipo ${int.parse(value).runtimeType}');
                                                             setState(() {
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                          index]
                                                                       .cantidadInt =
                                                                   int.parse(
                                                                       value);
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                      index]
                                                                   .monto = int
                                                                       .parse(
                                                                           value) *
@@ -1251,9 +1281,9 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                         style: const TextStyle(
                                                             fontSize: 12),
                                                       ),
-                                
+
                                                       // PRECIO
-                                
+
                                                       TextFormField(
                                                         controller:
                                                             producto.descuento,
@@ -1275,14 +1305,15 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                               223,
                                                               225,
                                                               226), // Cambia este color según tus preferencias
-                                
+
                                                           hintText:
                                                               'S/. Descuento',
                                                           border:
                                                               OutlineInputBorder(
                                                             borderRadius:
                                                                 BorderRadius
-                                                                    .circular(10),
+                                                                    .circular(
+                                                                        10),
                                                           ),
                                                           hintStyle:
                                                               const TextStyle(
@@ -1295,13 +1326,17 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                           listElementos[index]
                                                               .descuento
                                                               .text = value;
-                                                          if (value.isNotEmpty) {
+                                                          if (value
+                                                              .isNotEmpty) {
                                                             setState(() {
-                                                              listElementos[index]
-                                                                      .descuentoDouble =
-                                                                  int.parse(value)
-                                                                      .toDouble();
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                      index]
+                                                                  .descuentoDouble = int
+                                                                      .parse(
+                                                                          value)
+                                                                  .toDouble();
+                                                              listElementos[
+                                                                      index]
                                                                   .monto = listElementos[
                                                                           index]
                                                                       .precio *
@@ -1315,10 +1350,12 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                             print(
                                                                 '0.3) no hay descuento');
                                                             setState(() {
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                          index]
                                                                       .descuentoDouble =
                                                                   0.00;
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                      index]
                                                                   .monto = listElementos[
                                                                           index]
                                                                       .precio *
@@ -1329,13 +1366,15 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                   '0.4) este es el monto sin descuento: ${listElementos[index].monto}');
                                                             });
                                                           }
-                                
+
                                                           listElementos[index]
-                                                              .monto = listElementos[
-                                                                      index]
-                                                                  .monto -
-                                                              listElementos[index]
-                                                                  .descuentoDouble;
+                                                                  .monto =
+                                                              listElementos[
+                                                                          index]
+                                                                      .monto -
+                                                                  listElementos[
+                                                                          index]
+                                                                      .descuentoDouble;
                                                           print(
                                                               '0.5) este es el monto con descuento: ${listElementos[index].monto}');
                                                         },
@@ -1345,7 +1384,8 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                     index]
                                                                 .cantidad
                                                                 .isNotEmpty) {
-                                                              if (int.parse(value)
+                                                              if (int.parse(
+                                                                          value)
                                                                       .toDouble() >=
                                                                   (listElementos[
                                                                               index]
@@ -1366,7 +1406,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                         style: const TextStyle(
                                                             fontSize: 12),
                                                       ),
-                                
+
                                                       const SizedBox(
                                                         height: 10,
                                                       ),
@@ -1498,8 +1538,8 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                   );
                                                                 }
                                                               : null,
-                                                          child:
-                                                              Text("Confirmar?"))
+                                                          child: Text(
+                                                              "Confirmar?"))
                                                     ],
                                                   ),
                                                 ),
@@ -1509,7 +1549,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                         } else if (elementoActual is Promo) {
                                           // Promos
                                           Promo promo = elementoActual;
-                                
+
                                           // CONTENEDOR PRINCIPAL
                                           return Container(
                                             margin:
@@ -1527,10 +1567,17 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                 // IMAGENES DE PRODUCTO
                                                 Container(
                                                   height: 150,
-                                                   width: MediaQuery.of(context).size.width > 1536
-                                                        ? 90
-                                                        : MediaQuery.of(context).size.width <= 1536 ?
-                                                        80 :0,
+                                                  width: MediaQuery.of(context)
+                                                              .size
+                                                              .width >
+                                                          1536
+                                                      ? 90
+                                                      : MediaQuery.of(context)
+                                                                  .size
+                                                                  .width <=
+                                                              1536
+                                                          ? 80
+                                                          : 0,
                                                   decoration: BoxDecoration(
                                                       // color: Colors.grey,
                                                       borderRadius:
@@ -1540,17 +1587,26 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                           image: NetworkImage(
                                                               promo.foto))),
                                                 ),
-                                
+
                                                 // DESCRIPCIÓN DE PRODUCTO
-                                
+
                                                 Container(
-                                                    margin: const EdgeInsets.only(
-                                                        left: 20),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            left: 20),
                                                     height: 180,
-                                                    width: MediaQuery.of(context).size.width > 1536
+                                                    width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width >
+                                                            1536
                                                         ? 160
-                                                        : MediaQuery.of(context).size.width <= 1536 ?
-                                                        80 :0,
+                                                        : MediaQuery.of(context)
+                                                                    .size
+                                                                    .width <=
+                                                                1536
+                                                            ? 80
+                                                            : 0,
                                                     decoration: BoxDecoration(
                                                       // color: Colors.grey,
                                                       borderRadius:
@@ -1561,60 +1617,76 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                       children: [
                                                         Text(
                                                           "Presentación:${promo.nombre}",
-                                                          style: const TextStyle(
-                                                              color:
-                                                                  Colors.white),
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
                                                         ),
                                                         Text(
                                                           "${promo.descripcion}",
-                                                          style: const TextStyle(
-                                                              fontSize: 10,
-                                                              color:
-                                                                  Colors.white),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 10,
+                                                                  color: Colors
+                                                                      .white),
                                                         ),
                                                         Text(
                                                           "Precio: S/.${promo.precio}",
-                                                          style: const TextStyle(
-                                                              fontSize: 24,
-                                                              fontWeight:
-                                                                  FontWeight.w600,
-                                                              color:
-                                                                  Color.fromARGB(
-                                                                      255,
-                                                                      205,
-                                                                      237,
-                                                                      100)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 24,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          205,
+                                                                          237,
+                                                                          100)),
                                                         ),
                                                       ],
                                                     )),
-                                
+
                                                 // ENTRADAS NUMÉRICAS
-                                
+
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.all(15),
                                                   margin: const EdgeInsets.only(
                                                       left: 20),
                                                   height: 180,
-                                                  width: MediaQuery.of(context).size  .width < 1536 ? 150
-                                                      : MediaQuery.of(context).size.width >=1536 ? 160 :0,
+                                                  width: MediaQuery.of(context)
+                                                              .size
+                                                              .width <
+                                                          1536
+                                                      ? 150
+                                                      : MediaQuery.of(context)
+                                                                  .size
+                                                                  .width >=
+                                                              1536
+                                                          ? 160
+                                                          : 0,
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey,
                                                     borderRadius:
-                                                        BorderRadius.circular(20),
+                                                        BorderRadius.circular(
+                                                            20),
                                                   ),
                                                   child: Column(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.start,
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.center,
+                                                        CrossAxisAlignment
+                                                            .center,
                                                     children: [
                                                       // CANTIDAD
                                                       TextFormField(
                                                         controller:
                                                             promo.cantidad,
                                                         keyboardType:
-                                                            TextInputType.number,
+                                                            TextInputType
+                                                                .number,
                                                         inputFormatters: [
                                                           FilteringTextInputFormatter
                                                               .allow(RegExp(
@@ -1629,13 +1701,14 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                               223,
                                                               225,
                                                               226), // Cambia este color según tus preferencias
-                                
+
                                                           hintText: 'Cantidad',
                                                           border:
                                                               OutlineInputBorder(
                                                             borderRadius:
                                                                 BorderRadius
-                                                                    .circular(10),
+                                                                    .circular(
+                                                                        10),
                                                           ),
                                                           hintStyle:
                                                               const TextStyle(
@@ -1650,16 +1723,19 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                           listElementos[index]
                                                               .cantidad
                                                               .text = value;
-                                
-                                                          if (value.isNotEmpty) {
+
+                                                          if (value
+                                                              .isNotEmpty) {
                                                             print(
                                                                 'tipo ${int.parse(value).runtimeType}');
                                                             setState(() {
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                          index]
                                                                       .cantidadInt =
                                                                   int.parse(
                                                                       value);
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                      index]
                                                                   .monto = int
                                                                       .parse(
                                                                           value) *
@@ -1674,9 +1750,9 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                         style: const TextStyle(
                                                             fontSize: 12),
                                                       ),
-                                
+
                                                       // PRECIO
-                                
+
                                                       TextFormField(
                                                         controller:
                                                             promo.descuento,
@@ -1698,14 +1774,15 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                               223,
                                                               225,
                                                               226), // Cambia este color según tus preferencias
-                                
+
                                                           hintText:
                                                               'S/. Descuento',
                                                           border:
                                                               OutlineInputBorder(
                                                             borderRadius:
                                                                 BorderRadius
-                                                                    .circular(10),
+                                                                    .circular(
+                                                                        10),
                                                           ),
                                                           hintStyle:
                                                               const TextStyle(
@@ -1718,13 +1795,17 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                           listElementos[index]
                                                               .descuento
                                                               .text = value;
-                                                          if (value.isNotEmpty) {
+                                                          if (value
+                                                              .isNotEmpty) {
                                                             setState(() {
-                                                              listElementos[index]
-                                                                      .descuentoDouble =
-                                                                  int.parse(value)
-                                                                      .toDouble();
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                      index]
+                                                                  .descuentoDouble = int
+                                                                      .parse(
+                                                                          value)
+                                                                  .toDouble();
+                                                              listElementos[
+                                                                      index]
                                                                   .monto = listElementos[
                                                                           index]
                                                                       .precio *
@@ -1738,10 +1819,12 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                             print(
                                                                 '0.3) no hay descuento');
                                                             setState(() {
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                          index]
                                                                       .descuentoDouble =
                                                                   0.00;
-                                                              listElementos[index]
+                                                              listElementos[
+                                                                      index]
                                                                   .monto = listElementos[
                                                                           index]
                                                                       .precio *
@@ -1752,13 +1835,15 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                   '0.4) este es el monto sin descuento: ${listElementos[index].monto}');
                                                             });
                                                           }
-                                
+
                                                           listElementos[index]
-                                                              .monto = listElementos[
-                                                                      index]
-                                                                  .monto -
-                                                              listElementos[index]
-                                                                  .descuentoDouble;
+                                                                  .monto =
+                                                              listElementos[
+                                                                          index]
+                                                                      .monto -
+                                                                  listElementos[
+                                                                          index]
+                                                                      .descuentoDouble;
                                                           print(
                                                               '0.5) este es el monto con descuento: ${listElementos[index].monto}');
                                                         },
@@ -1768,7 +1853,8 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                     index]
                                                                 .cantidad
                                                                 .isNotEmpty) {
-                                                              if (int.parse(value)
+                                                              if (int.parse(
+                                                                          value)
                                                                       .toDouble() >=
                                                                   (listElementos[
                                                                               index]
@@ -1789,7 +1875,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                         style: const TextStyle(
                                                             fontSize: 12),
                                                       ),
-                                
+
                                                       const SizedBox(
                                                         height: 10,
                                                       ),
@@ -1806,19 +1892,13 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                         builder:
                                                                             (BuildContext
                                                                                 context) {
-                                                                          return StatefulBuilder(builder: (BuildContext
-                                                                                  context,
-                                                                              StateSetter
-                                                                                  setState) {
+                                                                          return StatefulBuilder(builder:
+                                                                              (BuildContext context, StateSetter setState) {
                                                                             return Container(
-                                                                              height:
-                                                                                  280,
-                                                                              width:
-                                                                                  MediaQuery.of(context).size.width,
-                                                                              padding:
-                                                                                  const EdgeInsets.all(16.0),
-                                                                              child:
-                                                                                  Column(
+                                                                              height: 280,
+                                                                              width: MediaQuery.of(context).size.width,
+                                                                              padding: const EdgeInsets.all(16.0),
+                                                                              child: Column(
                                                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                                                 mainAxisSize: MainAxisSize.min,
                                                                                 children: [
@@ -1910,8 +1990,8 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                       );
                                                                     }
                                                                   : null,
-                                                          child:
-                                                              Text("Confirmar?"))
+                                                          child: Text(
+                                                              "Confirmar?"))
                                                     ],
                                                   ),
                                                 ),
@@ -1923,7 +2003,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                             child: Text("NO PRODUCTS"),
                                           );
                                         }
-                                
+
                                         // Producto producto = listProducts[index];
                                       })),
                                 ),
@@ -1946,8 +2026,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
-                              color: const Color.fromARGB(255, 226, 76, 126) 
-                              ),
+                              color: const Color.fromARGB(255, 226, 76, 126)),
                           child: Center(
                             child: DropdownButton<String>(
                               value: tipo,
@@ -1973,7 +2052,7 @@ Future<dynamic> lastUbi(clienteNRID) async {
                     // UBICACIÓN
 
                     Container(
-                     // color:Colors.red,
+                      // color:Colors.red,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1987,9 +2066,11 @@ Future<dynamic> lastUbi(clienteNRID) async {
                           Container(
                               padding: const EdgeInsets.all(10),
                               width: 500,
-                              height:MediaQuery.of(context).size.width > 1536 ?
-                               700 : MediaQuery.of(context).size.width <=1536 ?
-                               530 : 0,
+                              height: MediaQuery.of(context).size.width > 1536
+                                  ? 700
+                                  : MediaQuery.of(context).size.width <= 1536
+                                      ? 530
+                                      : 0,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   color: Colors.grey),
@@ -2047,28 +2128,28 @@ Future<dynamic> lastUbi(clienteNRID) async {
                               width: 200,
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  if(_formKey.currentState!.validate()){
-                                               await calculoDeSeleccionadosYMontos();
-                                        showDialog<String>(
-                                            context: context,
-                                            builder: (BuildContext context) =>
-                                                AlertDialog(
-                                                  title: const Text(
-                                                      'Vas a registrar el pedido'),
-                                                  content: const Text(
-                                                      '¿Estas segur@?'),
-                                                  actions: <Widget>[
-                                                    ElevatedButton(
-                                                      onPressed: () {
-                                                        pedidoCancelado();
-                                                        Navigator.pop(context,
-                                                            'Cancelar');
-                                                      },
-                                                      child: const Text(
-                                                          'Cancelar'),
-                                                    ),
-                                                    ElevatedButton(
-                                                      onPressed: listFinalProductosSeleccionados
+                                  if (_formKey.currentState!.validate()) {
+                                    await calculoDeSeleccionadosYMontos();
+                                    showDialog<String>(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                              title: const Text(
+                                                  'Vas a registrar el pedido'),
+                                              content:
+                                                  const Text('¿Estas segur@?'),
+                                              actions: <Widget>[
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    pedidoCancelado();
+                                                    Navigator.pop(
+                                                        context, 'Cancelar');
+                                                  },
+                                                  child: const Text('Cancelar'),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed:
+                                                      listFinalProductosSeleccionados
                                                                   .isNotEmpty &&
                                                               montoTotalPedido >=
                                                                   montoMinimo
@@ -2080,14 +2161,12 @@ Future<dynamic> lastUbi(clienteNRID) async {
                                                                   tipo);
                                                             }
                                                           : null,
-                                                      child: const Text('SI'),
-                                                    ),
-                                                  ],
-                                                ));
-                                      }
-                                    
-                                  },
-                             
+                                                  child: const Text('SI'),
+                                                ),
+                                              ],
+                                            ));
+                                  }
+                                },
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.all(
                                         const Color.fromARGB(

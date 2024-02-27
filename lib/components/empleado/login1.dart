@@ -1,3 +1,4 @@
+import 'package:desktopapp/components/empleado/crud.dart';
 import 'package:desktopapp/components/model/user_model.dart';
 import 'package:desktopapp/components/provider/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -213,11 +214,11 @@ class _Login1State extends State<Login1> {
                           } 
                           // ADMINISTRADOR
                           else if (rol == 1) {
-                              /*Navigator.push(
+                              Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const HolaConductor()),
-                            );*/
+                                  builder: (context) => const Crud()),
+                            );
                           } 
                         } else if (status == 401) {
                           Navigator.of(context)

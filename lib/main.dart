@@ -1,3 +1,4 @@
+import 'package:desktopapp/components/empleado/crud.dart';
 import 'package:desktopapp/components/empleado/login1.dart';
 import 'package:desktopapp/components/empleado/updatearruta.dart';
 import 'package:desktopapp/components/provider/ruta_provider.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
         ),
-        home: const Login1(),
+        home: const Crud(),
       ),
     );
   }
