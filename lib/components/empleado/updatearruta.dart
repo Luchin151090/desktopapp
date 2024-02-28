@@ -167,7 +167,7 @@ class _UpdateState extends State<Update> {
       List<Pedido> pedidostemp =
           await obtenerPedidosPorConductor(conductorget[k].id);
       print('pedido por conductor $k');
-      print(pedidostemp[k].estado);
+
       print("---------");
       setState(() {
         mapaConductorXPedido[conductorget[k]] = pedidostemp;

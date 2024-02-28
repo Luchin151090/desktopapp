@@ -2157,7 +2157,7 @@ class _InicioState extends State<Inicio> {
                                                               print(
                                                                   '1) Se presiona el botón de registar');
                                                               await crearClienteNRmPedidoyDetallePedido(
-                                                                  empleadoID,
+                                                                  userProvider.user?.id,
                                                                   tipo);
                                                             }
                                                           : null,
